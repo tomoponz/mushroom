@@ -651,6 +651,81 @@
       50%{filter:brightness(2.65) contrast(2.05) saturate(2.2)}
     }
 
+    body.fx-heartbeat .panel,
+    body.fx-heartbeat .mushroom-field,
+    body.fx-heartbeat .marquee,
+    body.fx-heartbeat .effect-backdrop{
+      animation:heartBeatScreen .46s ease-in-out infinite !important;
+      transform-origin:center;
+    }
+    body.fx-heartbeat::before{
+      opacity:.92;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,16,56,.28), transparent 28%),
+        repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.12) 0 2px, transparent 2px 14px);
+      mix-blend-mode:screen;
+    }
+    @keyframes heartBeatScreen{
+      0%,100%{transform:scale(1); filter:brightness(1) saturate(1)}
+      18%{transform:scale(1.045); filter:brightness(1.35) saturate(1.6)}
+      32%{transform:scale(.985); filter:brightness(.88) saturate(1.15)}
+      56%{transform:scale(1.025); filter:brightness(1.2) saturate(1.35)}
+    }
+
+    body.fx-mosaic .effect-backdrop{
+      opacity:.98;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.34)),
+        repeating-conic-gradient(from 45deg, rgba(255,255,255,.24) 0 25%, rgba(0,0,0,.34) 0 50%) 0 0 / 28px 28px,
+        radial-gradient(circle at 50% 50%, rgba(255,16,56,.24), transparent 54%),
+        linear-gradient(180deg,#120006,#020202);
+      mix-blend-mode:normal;
+      image-rendering:pixelated;
+      filter:contrast(1.55) saturate(1.25);
+      transition-duration:.12s;
+    }
+    body.fx-mosaic .side,
+    body.fx-mosaic .cute-head,
+    body.fx-mosaic .caption,
+    body.fx-mosaic .marquee,
+    body.fx-mosaic .mushroom-field,
+    body.fx-mosaic .warning-log{
+      image-rendering:pixelated;
+      filter:contrast(1.45) saturate(1.25);
+    }
+    body.fx-mosaic .thumb-shell,
+    body.fx-mosaic #player{
+      filter:none !important;
+    }
+
+    body.fx-colorbar{
+      background:#000 !important;
+      animation:none !important;
+    }
+    body.fx-colorbar .effect-backdrop{
+      opacity:1;
+      background:url("assets/img/colorbar.jpg") center / cover no-repeat;
+      filter:contrast(1.1) saturate(1.12);
+      transition:opacity .22s linear;
+    }
+    body.fx-colorbar::before{
+      opacity:.22;
+      background:repeating-linear-gradient(0deg, rgba(255,255,255,.20) 0 1px, transparent 1px 5px);
+      mix-blend-mode:overlay;
+      animation:noiseRun .62s steps(3,end) infinite;
+    }
+    body.fx-colorbar::after{
+      opacity:.18;
+      background:repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.42) 0 1px, transparent 1px 4px);
+      background-size:120px 90px;
+      mix-blend-mode:screen;
+    }
+    body.fx-colorbar .panel{
+      background:rgba(0,0,0,.62);
+      border-color:rgba(255,255,255,.25);
+      box-shadow:0 0 70px rgba(0,0,0,.58);
+    }
+
     .virus-tab{
       position:absolute;
       width:var(--tab-w, 190px);
@@ -1075,6 +1150,7 @@
         "assets/img/eye.png",
         "assets/img/optical-illusion.png",
         "assets/img/taisho.png",
+        "assets/img/colorbar.jpg",
         TAB_STORM_IMAGE,
         ...MUSHROOM_RAIN_IMAGES
       ]);
@@ -1092,6 +1168,7 @@
       const effectClasses = [
         "fx-psy",
         "fx-blackout",
+        "fx-bg-black",
         "fx-text-void",
         "fx-black-noise",
         "fx-red",
@@ -1099,7 +1176,10 @@
         "fx-taisho",
         "fx-optical",
         "fx-wave",
-        "fx-flicker"
+        "fx-flicker",
+        "fx-heartbeat",
+        "fx-mosaic",
+        "fx-colorbar"
       ];
 
       let glitchRate = 0.08;
@@ -1126,19 +1206,22 @@
       ];
 
       const timelineBackgrounds = [
-        { start: 28, end: 30.5, key: "psy-028", className: "fx-psy", label: "0:28 PSYCHEDELIC" },
+        { start: 28.5, end: 31.0, key: "psy-0285", className: "fx-psy", label: "0:28.5 PSYCHEDELIC" },
         { start: 41, end: 42, key: "black-041", className: "fx-blackout", label: "0:41 BLACKOUT" },
-        { start: 66, end: 70, key: "red-106", className: "fx-red", label: "1:06 RED SPLATTER" },
+        { start: 54.8, end: 55.8, key: "bg-black-0548", className: "fx-bg-black", label: "0:54.8 BACKGROUND BLACK" },
+        { start: 65.8, end: 69.8, key: "red-1058", className: "fx-red", label: "1:05.8 RED SPLATTER" },
         { start: 72, end: 75, key: "eyes-112", className: "fx-eyes", label: "1:12 EYES" },
-        { start: 84, end: 86, key: "taisho-124", className: "fx-taisho", label: "1:24 TAISHO AD" },
-        { start: 86, end: 95, key: "optical-126", className: "fx-optical", label: "1:26 OPTICAL" },
+        { start: 84, end: 86.3, key: "taisho-124", className: "fx-taisho", label: "1:24 TAISHO AD" },
+        { start: 86.3, end: 95, key: "optical-1263", className: "fx-optical", label: "1:26.3 OPTICAL" },
         { start: 95, end: 107, key: "black-noise-135", className: "fx-black-noise", label: "1:35 BLACK NOISE" },
-        { start: 107, end: 112, key: "wave-147", className: "fx-wave", label: "1:47 WAVEFORM" }
+        { start: 107, end: 112, key: "wave-147", className: "fx-wave", label: "1:47 WAVEFORM" },
+        { start: 195, end: 99999, key: "colorbar-315", className: "fx-colorbar", label: "3:15 COLOR BARS" }
       ];
 
       const timelineClassWindows = [
+        { start: 5, end: 7, key: "heartbeat-005", className: "fx-heartbeat", label: "0:05 HEARTBEAT" },
         { start: 32, end: 35, key: "flicker-032", className: "fx-flicker", label: "0:32 FLICKER" },
-        { start: 55, end: 56, key: "textvoid-055", className: "fx-text-void", label: "0:55 TEXT VOID" }
+        { start: 67, end: 70, key: "mosaic-107", className: "fx-mosaic", label: "1:07 CLASSIC MOSAIC" }
       ];
 
       const timelineRainWindows = [
