@@ -1094,6 +1094,52 @@
       50%{transform:translate(2px,-1px) scale(1.015)}
     }
 
+    .meme-layer{
+      z-index:92;
+      opacity:0;
+      mix-blend-mode:normal;
+      filter:contrast(1.08) saturate(1.12) drop-shadow(0 0 16px rgba(255,255,255,.16));
+    }
+    .meme-layer.active{opacity:.94;}
+    .catdance-layer{
+      left:10px;
+      top:44px;
+      width:min(20vw,220px);
+      aspect-ratio:16/9;
+    }
+    .popcat-layer{
+      left:12px;
+      bottom:80px;
+      width:min(18vw,190px);
+      aspect-ratio:640/362;
+    }
+    .chipicat-layer{
+      left:50%;
+      bottom:42px;
+      width:min(18vw,200px);
+      aspect-ratio:16/9;
+      transform:translateX(-50%);
+    }
+    .reimu-layer{
+      left:14px;
+      top:44%;
+      width:min(16vw,150px);
+      aspect-ratio:4/3;
+    }
+    .naruto-layer{
+      left:31%;
+      top:18px;
+      width:min(17vw,178px);
+      aspect-ratio:1/1;
+    }
+    body.fx-chroma-meme .meme-layer{
+      animation:memePulse .55s steps(2,end) infinite;
+    }
+    @keyframes memePulse{
+      0%,100%{filter:contrast(1.08) saturate(1.12) drop-shadow(0 0 14px rgba(255,255,255,.14));}
+      50%{filter:contrast(1.28) saturate(1.45) hue-rotate(18deg) drop-shadow(0 0 24px rgba(116,255,77,.22));}
+    }
+
     .donald-layer{
       top:0;
       right:0;
@@ -1133,6 +1179,11 @@
       .runner-layer{width:min(32vw,250px);}
       .donald-layer.active{opacity:.68;}
       .starmie-layer{width:min(36vw,230px); height:min(28vh,230px); right:10px; bottom:44px;}
+      .catdance-layer{width:24vw; top:8px; left:6px;}
+      .naruto-layer{width:20vw; top:8px; left:35%;}
+      .reimu-layer{width:18vw; left:6px; top:38%;}
+      .popcat-layer{width:22vw; left:6px; bottom:76px;}
+      .chipicat-layer{width:22vw; bottom:42px;}
     }
     @media (max-width:560px){
       .cross-layer{padding:6px 6px 44px; gap:1px;}
@@ -1140,6 +1191,12 @@
       .runner-layer{width:min(38vw,170px);}
       .donald-layer.active{opacity:.52;}
       .starmie-layer{width:34vw; height:34vw; right:8px; bottom:42px;}
+      .catdance-layer{width:28vw; top:6px; left:5px;}
+      .naruto-layer{width:23vw; top:5px; left:39%;}
+      .reimu-layer{width:21vw; top:36%; left:5px;}
+      .popcat-layer{width:26vw; left:5px; bottom:72px;}
+      .chipicat-layer{width:26vw; bottom:42px;}
+      .meme-layer.active{opacity:.82;}
     }
 
     .falling-mush{
@@ -1227,6 +1284,26 @@
     <video id="runnerVideo" src="assets/video/orga-runner-bb.mp4" muted loop playsinline preload="auto"></video>
     <canvas id="runnerCanvas"></canvas>
   </div>
+  <div class="chroma-layer meme-layer catdance-layer" id="catDanceLayer" aria-hidden="true">
+    <video id="catDanceVideo" src="assets/video/cat-dance-gb.mp4" muted loop playsinline preload="auto"></video>
+    <canvas id="catDanceCanvas"></canvas>
+  </div>
+  <div class="chroma-layer meme-layer popcat-layer" id="popCatLayer" aria-hidden="true">
+    <video id="popCatVideo" src="assets/video/pop-cat-gb.mp4" muted loop playsinline preload="auto"></video>
+    <canvas id="popCatCanvas"></canvas>
+  </div>
+  <div class="chroma-layer meme-layer chipicat-layer" id="chipiCatLayer" aria-hidden="true">
+    <video id="chipiCatVideo" src="assets/video/chipi-cat-gb.mp4" muted loop playsinline preload="auto"></video>
+    <canvas id="chipiCatCanvas"></canvas>
+  </div>
+  <div class="chroma-layer meme-layer reimu-layer" id="reimuLayer" aria-hidden="true">
+    <video id="reimuVideo" src="assets/video/reimu-bb.mp4" muted loop playsinline preload="auto"></video>
+    <canvas id="reimuCanvas"></canvas>
+  </div>
+  <div class="chroma-layer meme-layer naruto-layer" id="narutoLayer" aria-hidden="true">
+    <video id="narutoVideo" src="assets/video/naruto-gb.mp4" muted loop playsinline preload="auto"></video>
+    <canvas id="narutoCanvas"></canvas>
+  </div>
   <div class="warning-log" id="warningLog">[KINOCO_SYS] かわいい きのこ を 読み込み中...</div>
 
   <main class="stage">
@@ -1310,6 +1387,21 @@
       const runnerLayer = document.getElementById("runnerLayer");
       const runnerVideo = document.getElementById("runnerVideo");
       const runnerCanvas = document.getElementById("runnerCanvas");
+      const catDanceLayer = document.getElementById("catDanceLayer");
+      const catDanceVideo = document.getElementById("catDanceVideo");
+      const catDanceCanvas = document.getElementById("catDanceCanvas");
+      const popCatLayer = document.getElementById("popCatLayer");
+      const popCatVideo = document.getElementById("popCatVideo");
+      const popCatCanvas = document.getElementById("popCatCanvas");
+      const chipiCatLayer = document.getElementById("chipiCatLayer");
+      const chipiCatVideo = document.getElementById("chipiCatVideo");
+      const chipiCatCanvas = document.getElementById("chipiCatCanvas");
+      const reimuLayer = document.getElementById("reimuLayer");
+      const reimuVideo = document.getElementById("reimuVideo");
+      const reimuCanvas = document.getElementById("reimuCanvas");
+      const narutoLayer = document.getElementById("narutoLayer");
+      const narutoVideo = document.getElementById("narutoVideo");
+      const narutoCanvas = document.getElementById("narutoCanvas");
 
       const corruptChars = "縺繧譁荳蜑笘繝蟆隧髫莠邱驥謗蜿譛螟蟄莨譛�▒▓█░ﾄﾞｺﾉｷﾉｺ";
       const MUSHROOM_RAIN_IMAGES = Object.freeze([
@@ -1324,7 +1416,12 @@
       const CHROMA_VIDEO_SOURCES = Object.freeze([
         "assets/video/donald-dance-bb.mp4",
         "assets/video/starmie-awadance-gb.mp4",
-        RUNNER_VIDEO
+        RUNNER_VIDEO,
+        "assets/video/cat-dance-gb.mp4",
+        "assets/video/pop-cat-gb.mp4",
+        "assets/video/chipi-cat-gb.mp4",
+        "assets/video/reimu-bb.mp4",
+        "assets/video/naruto-gb.mp4"
       ]);
       const PRELOAD_IMAGES = Object.freeze([
         "assets/img/psychedelic.png",
@@ -1428,7 +1525,12 @@
       const timelineChromaWindows = [
         { start: 88, end: 112, id: "donald", className: "fx-chroma-donald", label: "1:28 DONALD BLUEBACK LOOP" },
         { start: 93, end: 112, id: "starmie", className: "fx-chroma-starmie", label: "1:33 MEGA STARMIE GREENBACK LOOP" },
-        { start: 98, end: 112, id: "runner", className: "fx-chroma-runner", label: "1:38 ORGA BLUEBACK LOOP" }
+        { start: 98, end: 112, id: "runner", className: "fx-chroma-runner", label: "1:38 ORGA BLUEBACK LOOP" },
+        { start: 102, end: 112, id: "catDance", className: "fx-chroma-meme", label: "1:42 CAT DANCE GREENBACK LOOP" },
+        { start: 102, end: 112, id: "popCat", className: "fx-chroma-meme", label: "1:42 POP CAT GREENBACK LOOP" },
+        { start: 102, end: 112, id: "chipiCat", className: "fx-chroma-meme", label: "1:42 CHIPI CAT GREENBACK LOOP" },
+        { start: 102, end: 112, id: "reimu", className: "fx-chroma-meme", label: "1:42 KITAKITA REIMU BLUEBACK LOOP" },
+        { start: 102, end: 112, id: "naruto", className: "fx-chroma-meme", label: "1:42 NARUTO GREENBACK LOOP" }
       ];
 
       const timelineRunnerWindow = null;
@@ -1669,6 +1771,46 @@
         updateMosaicMask();
         updateChromaSafeLayout();
         updateRunnerSafeLayout();
+        updateMemeSafeLayout();
+      }
+
+      function setChromaBox(layer, left, top, width, height) {
+        if (!layer) return;
+        layer.style.left = `${Math.round(left)}px`;
+        layer.style.top = `${Math.round(top)}px`;
+        layer.style.width = `${Math.round(width)}px`;
+        layer.style.height = `${Math.round(height)}px`;
+        layer.style.right = "auto";
+        layer.style.bottom = "auto";
+      }
+
+      function updateMemeSafeLayout() {
+        const safe = getVideoSafeRect(16);
+        const vw = safe.viewportWidth;
+        const vh = safe.viewportHeight;
+        const margin = Math.max(5, Math.min(14, vw * 0.022));
+        const bottomGuard = 42;
+        const topSpace = Math.max(0, safe.top - margin * 2);
+        const leftSpace = Math.max(0, safe.left - margin * 2);
+        const bottomSpace = Math.max(0, vh - safe.bottom - bottomGuard - margin);
+        const compact = vw < 620;
+
+        const wWide = Math.max(70, Math.min(compact ? 120 : 190, vw * (compact ? 0.27 : 0.15)));
+        const wMid = Math.max(62, Math.min(compact ? 104 : 155, vw * (compact ? 0.23 : 0.12)));
+        const wSquare = Math.max(54, Math.min(compact ? 94 : 135, vw * (compact ? 0.20 : 0.105)));
+
+        const topY = topSpace >= wWide * .62 ? margin : Math.max(margin, Math.min(vh - bottomGuard - wWide * .56, safe.bottom + margin));
+        const bottomY = bottomSpace >= wWide * .56
+          ? Math.min(vh - bottomGuard - wWide * .56, safe.bottom + margin)
+          : Math.max(margin, safe.top - wWide * .56 - margin);
+        const leftX = margin;
+        const nearLeftX = leftSpace >= wMid ? margin : Math.max(margin, safe.left - wMid - margin);
+
+        setChromaBox(catDanceLayer, leftX, topY, wWide, wWide * 9 / 16);
+        setChromaBox(popCatLayer, leftX, bottomY, wWide, wWide * 362 / 640);
+        setChromaBox(chipiCatLayer, Math.max(margin, Math.min(vw - wWide - margin, safe.left + (safe.right - safe.left) * .40 - wWide / 2)), Math.max(margin, bottomY - (compact ? 42 : 58)), wWide, wWide * 9 / 16);
+        setChromaBox(reimuLayer, nearLeftX, Math.max(margin, Math.min(vh - bottomGuard - wMid * .75, safe.top + (safe.bottom - safe.top) * .46)), wMid, wMid * .75);
+        setChromaBox(narutoLayer, Math.max(margin, Math.min(vw - wSquare - margin, safe.left + (safe.right - safe.left) * .68)), Math.max(margin, topY + (compact ? 38 : 48)), wSquare, wSquare);
       }
 
       function updateRunnerSafeLayout() {
@@ -1960,7 +2102,63 @@
           key: "blue",
           mode: "contain",
           active: false,
-          lastDraw: 0
+          lastDraw: 0,
+          interval: 42
+        },
+        catDance: {
+          layer: catDanceLayer,
+          video: catDanceVideo,
+          canvas: catDanceCanvas,
+          ctx: catDanceCanvas ? catDanceCanvas.getContext("2d", { willReadFrequently: true }) : null,
+          key: "green",
+          mode: "contain",
+          active: false,
+          lastDraw: 0,
+          interval: 66
+        },
+        popCat: {
+          layer: popCatLayer,
+          video: popCatVideo,
+          canvas: popCatCanvas,
+          ctx: popCatCanvas ? popCatCanvas.getContext("2d", { willReadFrequently: true }) : null,
+          key: "green",
+          mode: "contain",
+          active: false,
+          lastDraw: 0,
+          interval: 66
+        },
+        chipiCat: {
+          layer: chipiCatLayer,
+          video: chipiCatVideo,
+          canvas: chipiCatCanvas,
+          ctx: chipiCatCanvas ? chipiCatCanvas.getContext("2d", { willReadFrequently: true }) : null,
+          key: "green",
+          mode: "contain",
+          active: false,
+          lastDraw: 0,
+          interval: 66
+        },
+        reimu: {
+          layer: reimuLayer,
+          video: reimuVideo,
+          canvas: reimuCanvas,
+          ctx: reimuCanvas ? reimuCanvas.getContext("2d", { willReadFrequently: true }) : null,
+          key: "blue",
+          mode: "contain",
+          active: false,
+          lastDraw: 0,
+          interval: 66
+        },
+        naruto: {
+          layer: narutoLayer,
+          video: narutoVideo,
+          canvas: narutoCanvas,
+          ctx: narutoCanvas ? narutoCanvas.getContext("2d", { willReadFrequently: true }) : null,
+          key: "green",
+          mode: "contain",
+          active: false,
+          lastDraw: 0,
+          interval: 66
         }
       };
       let chromaRaf = 0;
@@ -2052,7 +2250,7 @@
 
       function drawChromaActor(actor, timestamp) {
         if (!actor.active || !actor.video || !actor.ctx || !actor.canvas) return;
-        if (timestamp - actor.lastDraw < 33) return;
+        if (timestamp - actor.lastDraw < (actor.interval || 33)) return;
         actor.lastDraw = timestamp;
         const { w, h } = configureCanvas(actor);
         if (!w || !h || actor.video.readyState < 2) return;
@@ -2102,7 +2300,17 @@
 
       function stopAllChromaActors() {
         Object.keys(chromaActors).forEach(stopChromaActor);
-        document.body.classList.remove("fx-chroma-donald", "fx-chroma-starmie", "fx-chroma-runner");
+        document.body.classList.remove(
+          "fx-chroma-donald",
+          "fx-chroma-starmie",
+          "fx-chroma-runner",
+          "fx-chroma-meme",
+          "fx-chroma-catdance",
+          "fx-chroma-popcat",
+          "fx-chroma-chipicat",
+          "fx-chroma-reimu",
+          "fx-chroma-naruto"
+        );
       }
 
       function syncChromaByTime(now) {
