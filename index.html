@@ -83,6 +83,7 @@
 
     .mushroom-field,
     .rain-layer,
+    .eye-under-layer,
     .eye-layer,
     .tab-storm-layer,
     .cross-layer,
@@ -94,7 +95,9 @@
     }
     .mushroom-field{z-index:0}
     .rain-layer{z-index:7}
-    .eye-layer{z-index:11; opacity:0; transition:opacity .12s linear}
+    .eye-under-layer{z-index:86; opacity:0; transition:opacity .12s linear}
+    .eye-layer{z-index:87; opacity:0; transition:opacity .12s linear}
+    body.fx-eyes .eye-under-layer{opacity:.98}
     .tab-storm-layer{z-index:96; opacity:0; transition:opacity .08s linear}
     .tab-storm-layer.active{opacity:1}
 
@@ -420,6 +423,37 @@
     @keyframes eyeFloat{
       from{translate:0 -6px; scale:.96}
       to{translate:0 8px; scale:1.06}
+    }
+
+
+    .eye-under-layer img{
+      position:absolute;
+      pointer-events:none;
+      user-select:none;
+      -webkit-user-drag:none;
+    }
+    .hole-eyes-img{
+      width:min(50vw,560px);
+      max-height:48vh;
+      object-fit:contain;
+      opacity:.84;
+      filter:drop-shadow(0 0 24px rgba(247,255,233,.35)) drop-shadow(0 0 20px rgba(255,16,56,.24)) contrast(1.12) saturate(1.06);
+      mix-blend-mode:normal;
+      transform:translate(-50%,-50%);
+    }
+    .face-eye-img{
+      width:clamp(105px,15vw,245px);
+      opacity:.95;
+      filter:drop-shadow(0 0 22px rgba(255,16,56,.34)) drop-shadow(0 0 14px rgba(247,255,233,.18)) contrast(1.08) saturate(1.03);
+      mix-blend-mode:normal;
+    }
+    .face-eye-img.tl{left:0;top:0;transform:translate(-8%,-8%)}
+    .face-eye-img.tr{right:0;top:0;transform:translate(8%,-8%) scaleX(-1)}
+    .face-eye-img.bl{left:0;bottom:0;transform:translate(-8%,8%)}
+    .face-eye-img.br{right:0;bottom:0;transform:translate(8%,8%) scaleX(-1)}
+    @media (max-width:560px){
+      .hole-eyes-img{width:min(62vw,330px);max-height:38vh;opacity:.78}
+      .face-eye-img{width:clamp(84px,22vw,138px)}
     }
 
     .warning-log{
@@ -1059,6 +1093,7 @@
     .chroma-layer{
       position:fixed;
       pointer-events:none;
+      z-index:97;
       opacity:0;
       transition:opacity .18s linear, filter .18s linear;
       overflow:hidden;
@@ -1078,7 +1113,7 @@
       top:10px;
       width:min(28vw,360px);
       height:min(22vh,260px);
-      z-index:93;
+      z-index:98;
       pointer-events:none;
       opacity:0;
       transition:opacity .16s linear, filter .16s linear, transform .16s linear;
@@ -1095,7 +1130,7 @@
     }
 
     .meme-layer{
-      z-index:3;
+      z-index:97;
       opacity:0;
       mix-blend-mode:normal;
       filter:contrast(1.12) saturate(1.18) drop-shadow(0 0 20px rgba(255,255,255,.20));
@@ -1145,7 +1180,7 @@
       right:0;
       bottom:36px;
       width:min(46vw,720px);
-      z-index:94;
+      z-index:97;
       opacity:0;
       mix-blend-mode:screen;
       filter:contrast(1.1) saturate(1.2) drop-shadow(0 0 22px rgba(255,255,255,.16));
@@ -1156,7 +1191,7 @@
       bottom:52px;
       width:min(27vw,330px);
       height:min(34vh,330px);
-      z-index:95;
+      z-index:98;
       opacity:0;
       filter:contrast(1.12) saturate(1.12) drop-shadow(0 0 26px rgba(116,255,77,.30));
     }
@@ -1270,6 +1305,13 @@
 
   <div class="mojibake-layer" id="mojibakeLayer" aria-hidden="true"></div>
   <div class="rain-layer" id="rainLayer" aria-hidden="true"></div>
+  <div class="eye-under-layer" id="eyeUnderLayer" aria-hidden="true">
+    <img class="hole-eyes-img" id="holeEyesImg" src="assets/img/hole-eyes.png" alt="">
+    <img class="face-eye-img tl" src="assets/img/face-eye-corner.png" alt="">
+    <img class="face-eye-img tr" src="assets/img/face-eye-corner.png" alt="">
+    <img class="face-eye-img bl" src="assets/img/face-eye-corner.png" alt="">
+    <img class="face-eye-img br" src="assets/img/face-eye-corner.png" alt="">
+  </div>
   <div class="eye-layer" id="eyeLayer" aria-hidden="true"></div>
   <div class="tab-storm-layer" id="tabStormLayer" aria-hidden="true"></div>
   <div class="chroma-layer donald-layer" id="donaldLayer" aria-hidden="true">
@@ -1377,6 +1419,8 @@
       const mojibakeLayer = document.getElementById("mojibakeLayer");
       const rainLayer = document.getElementById("rainLayer");
       const eyeLayer = document.getElementById("eyeLayer");
+      const eyeUnderLayer = document.getElementById("eyeUnderLayer");
+      const holeEyesImg = document.getElementById("holeEyesImg");
       const tabStormLayer = document.getElementById("tabStormLayer");
       const donaldLayer = document.getElementById("donaldLayer");
       const donaldVideo = document.getElementById("donaldVideo");
@@ -1430,6 +1474,8 @@
         "assets/img/optical-illusion.png",
         "assets/img/taisho.png",
         "assets/img/colorbar.jpg",
+        "assets/img/hole-eyes.png",
+        "assets/img/face-eye-corner.png",
         TAB_STORM_IMAGE,
         ...MUSHROOM_RAIN_IMAGES
       ]);
@@ -1481,6 +1527,8 @@
       let tabStormTimer = null;
       let crossLayerCount = -1;
       let runnerActive = false;
+      let eightTextActive = false;
+      const eightTextNodes = new Map();
       const activeTimedClasses = new Set();
 
       const timelineEvents = [
@@ -1583,6 +1631,10 @@
         });
 
         mojibakeTimer = setInterval(() => {
+          if (eightTextActive) {
+            forceEightText();
+            return;
+          }
           glitchTargets.forEach((target) => {
             const clean = target.dataset.clean || target.textContent || "";
             target.textContent = corruptText(clean, glitchRate);
@@ -1658,6 +1710,84 @@
         }
       }
 
+      function updateEyeUnderLayerLayout() {
+        if (!eyeUnderLayer || !holeEyesImg) return;
+        const safe = getVideoSafeRect(22);
+        const zones = [
+          { left: 0, top: 0, width: safe.viewportWidth, height: safe.top },
+          { left: 0, top: safe.top, width: safe.left, height: safe.bottom - safe.top },
+          { left: safe.right, top: safe.top, width: safe.viewportWidth - safe.right, height: safe.bottom - safe.top },
+          { left: 0, top: safe.bottom, width: safe.viewportWidth, height: safe.viewportHeight - safe.bottom }
+        ].map((zone) => ({ ...zone, area: Math.max(0, zone.width) * Math.max(0, zone.height) }))
+         .filter((zone) => zone.area > 8000);
+        const zone = zones.length ? zones.sort((a, b) => b.area - a.area)[0] : {
+          left: Math.round(safe.viewportWidth * .5),
+          top: Math.round(safe.viewportHeight * .65),
+          width: Math.round(safe.viewportWidth * .45),
+          height: Math.round(safe.viewportHeight * .30)
+        };
+        const maxW = Math.max(150, Math.min(560, zone.width * .86));
+        const maxH = Math.max(130, Math.min(430, zone.height * .86));
+        holeEyesImg.style.width = `${Math.round(maxW)}px`;
+        holeEyesImg.style.maxHeight = `${Math.round(maxH)}px`;
+        holeEyesImg.style.left = `${Math.round(zone.left + zone.width / 2)}px`;
+        holeEyesImg.style.top = `${Math.round(zone.top + zone.height / 2)}px`;
+      }
+
+      function shouldEightReplaceTextNode(node) {
+        const parent = node?.parentElement;
+        if (!parent) return false;
+        if (!node.nodeValue || !node.nodeValue.trim()) return false;
+        if (parent.closest("script,style,video,canvas,.rain-layer,.eye-layer,.eye-under-layer,.tab-storm-layer,.cross-layer,.mosaic-layer")) return false;
+        return true;
+      }
+
+      function collectEightTextNodes() {
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+          acceptNode(node) {
+            return shouldEightReplaceTextNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+          }
+        });
+        let node;
+        while ((node = walker.nextNode())) {
+          if (!eightTextNodes.has(node)) eightTextNodes.set(node, node.nodeValue);
+        }
+      }
+
+      function forceEightText() {
+        collectEightTextNodes();
+        eightTextNodes.forEach((_, node) => {
+          if (node && node.isConnected) node.nodeValue = "88888888";
+        });
+        document.title = "88888888";
+      }
+
+      function restoreEightText() {
+        eightTextNodes.forEach((value, node) => {
+          if (node && node.isConnected) node.nodeValue = value;
+        });
+        eightTextNodes.clear();
+        glitchTargets.forEach((target) => {
+          if (target.dataset.clean) target.textContent = target.dataset.clean;
+        });
+        marqueeText.textContent = "🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　";
+        document.title = "ﾄﾞｺﾉｺﾉｷﾉｺ.exe";
+      }
+
+      function setEightTextMode(active) {
+        if (eightTextActive === active) return;
+        eightTextActive = active;
+        if (active) {
+          forceEightText();
+          return;
+        }
+        restoreEightText();
+      }
+
+      function syncEightTextByTime(now) {
+        setEightTextMode(now >= 54.8 && now < 55.8);
+      }
+
       function clearBackgroundEffects(resetKey = true) {
         document.body.classList.remove(...effectClasses);
         eyeLayer.innerHTML = "";
@@ -1673,7 +1803,7 @@
         activeBackgroundKey = label || className;
         document.body.classList.add(className);
         writeLog(label);
-        if (className === "fx-eyes") buildEyeLayer();
+        if (className === "fx-eyes") { buildEyeLayer(); updateEyeUnderLayerLayout(); }
         if (durationMs) {
           activeBackgroundTimer = setTimeout(() => {
             document.body.classList.remove(className);
@@ -1772,6 +1902,7 @@
         updateChromaSafeLayout();
         updateRunnerSafeLayout();
         updateMemeSafeLayout();
+        if (document.body.classList.contains("fx-eyes")) updateEyeUnderLayerLayout();
       }
 
       function setChromaBox(layer, left, top, width, height) {
@@ -2372,6 +2503,7 @@
         stopMushroomRain();
         stopTabStorm();
         stopAllChromaActors();
+        setEightTextMode(false);
         stopRunnerLayer();
         rainLayer.innerHTML = "";
         if (tabStormLayer) tabStormLayer.innerHTML = "";
@@ -2413,6 +2545,7 @@
         stopMushroomRain();
         stopTabStorm();
         stopAllChromaActors();
+        setEightTextMode(false);
         stopRunnerLayer();
         clearBackgroundEffects();
         activeTimedClasses.forEach((className) => document.body.classList.remove(className));
@@ -2444,7 +2577,7 @@
 
         if (!current) return;
         document.body.classList.add(current.className);
-        if (current.className === "fx-eyes") buildEyeLayer();
+        if (current.className === "fx-eyes") { buildEyeLayer(); updateEyeUnderLayerLayout(); }
         writeLog(current.label);
       }
 
@@ -2505,6 +2638,7 @@
           syncClassWindows(now);
           syncRainByTime(now);
           syncTabStormByTime(now);
+          syncEightTextByTime(now);
           syncCrossLayerByTime(now);
           syncChromaByTime(now);
           syncRunnerByTime(now);
@@ -2519,6 +2653,7 @@
         syncClassWindows(now);
         syncRainByTime(now);
         syncTabStormByTime(now);
+        syncEightTextByTime(now);
         syncCrossLayerByTime(now);
         syncChromaByTime(now);
 
