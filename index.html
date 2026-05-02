@@ -94,7 +94,7 @@
     }
     .mushroom-field{z-index:0}
     .rain-layer{z-index:7}
-    .eye-layer{z-index:2; opacity:0; transition:opacity .12s linear}
+    .eye-layer{z-index:11; opacity:0; transition:opacity .12s linear}
     .tab-storm-layer{z-index:96; opacity:0; transition:opacity .08s linear}
     .tab-storm-layer.active{opacity:1}
 
@@ -407,12 +407,12 @@
 
     .eye-img{
       position:absolute;
-      width:var(--eye-size, 72px);
+      width:var(--eye-size, 96px);
       height:auto;
-      opacity:var(--eye-opacity, .86);
-      filter:drop-shadow(0 0 14px rgba(247,255,233,.36)) contrast(1.12) saturate(.95);
+      opacity:var(--eye-opacity, .96);
+      filter:drop-shadow(0 0 22px rgba(247,255,233,.60)) drop-shadow(0 0 18px rgba(255,16,56,.30)) contrast(1.28) saturate(1.15) brightness(1.08);
       animation:eyeFloat var(--eye-speed, 1.7s) ease-in-out infinite alternate;
-      mix-blend-mode:screen;
+      mix-blend-mode:normal;
       transform-origin:center;
       user-select:none;
       -webkit-user-drag:none;
@@ -1076,8 +1076,8 @@
       position:fixed;
       left:10px;
       top:10px;
-      width:min(24vw,340px);
-      height:auto;
+      width:min(28vw,360px);
+      height:min(22vh,260px);
       z-index:93;
       pointer-events:none;
       opacity:0;
@@ -1086,16 +1086,8 @@
       filter:drop-shadow(0 0 22px rgba(0,80,255,.28)) drop-shadow(0 0 18px rgba(255,255,255,.10));
     }
     .runner-layer.active{
-      opacity:.94;
+      opacity:.96;
       animation:runnerScreenJitter .26s steps(2,end) infinite;
-    }
-    .runner-layer img{
-      display:block;
-      width:100%;
-      height:auto;
-      user-select:none;
-      -webkit-user-drag:none;
-      image-rendering:auto;
     }
     @keyframes runnerScreenJitter{
       0%,100%{transform:translate(0,0) scale(1)}
@@ -1231,8 +1223,9 @@
     <video id="starmieVideo" src="assets/video/starmie-awadance-gb.mp4" muted loop playsinline preload="auto"></video>
     <canvas id="starmieCanvas"></canvas>
   </div>
-  <div class="runner-layer" id="runnerLayer" aria-hidden="true">
-    <img id="runnerImage" src="assets/img/runner-bluekey.png" alt="">
+  <div class="chroma-layer runner-layer" id="runnerLayer" aria-hidden="true">
+    <video id="runnerVideo" src="assets/video/orga-runner-bb.mp4" muted loop playsinline preload="auto"></video>
+    <canvas id="runnerCanvas"></canvas>
   </div>
   <div class="warning-log" id="warningLog">[KINOCO_SYS] かわいい きのこ を 読み込み中...</div>
 
@@ -1289,7 +1282,7 @@
 
       const MAIN_VIDEO_ID = "NYnpsWrVGKg";
       const TAB_STORM_IMAGE = "assets/img/393.png";
-      const RUNNER_IMAGE = "assets/img/runner-bluekey.png";
+      const RUNNER_VIDEO = "assets/video/orga-runner-bb.mp4";
       const coverThumb = document.getElementById("coverThumb");
       const thumbOverlay = document.getElementById("thumbOverlay");
       const videoShell = document.getElementById("videoShell");
@@ -1315,6 +1308,8 @@
       const starmieVideo = document.getElementById("starmieVideo");
       const starmieCanvas = document.getElementById("starmieCanvas");
       const runnerLayer = document.getElementById("runnerLayer");
+      const runnerVideo = document.getElementById("runnerVideo");
+      const runnerCanvas = document.getElementById("runnerCanvas");
 
       const corruptChars = "縺繧譁荳蜑笘繝蟆隧髫莠邱驥謗蜿譛螟蟄莨譛�▒▓█░ﾄﾞｺﾉｷﾉｺ";
       const MUSHROOM_RAIN_IMAGES = Object.freeze([
@@ -1328,7 +1323,8 @@
       ]);
       const CHROMA_VIDEO_SOURCES = Object.freeze([
         "assets/video/donald-dance-bb.mp4",
-        "assets/video/starmie-awadance-gb.mp4"
+        "assets/video/starmie-awadance-gb.mp4",
+        RUNNER_VIDEO
       ]);
       const PRELOAD_IMAGES = Object.freeze([
         "assets/img/psychedelic.png",
@@ -1338,7 +1334,6 @@
         "assets/img/taisho.png",
         "assets/img/colorbar.jpg",
         TAB_STORM_IMAGE,
-        RUNNER_IMAGE,
         ...MUSHROOM_RAIN_IMAGES
       ]);
       const logLines = [
@@ -1368,7 +1363,8 @@
         "fx-mosaic",
         "fx-colorbar",
         "fx-chroma-donald",
-        "fx-chroma-starmie"
+        "fx-chroma-starmie",
+        "fx-chroma-runner"
       ];
 
       let glitchRate = 0.08;
@@ -1431,14 +1427,11 @@
 
       const timelineChromaWindows = [
         { start: 88, end: 112, id: "donald", className: "fx-chroma-donald", label: "1:28 DONALD BLUEBACK LOOP" },
-        { start: 93, end: 112, id: "starmie", className: "fx-chroma-starmie", label: "1:33 MEGA STARMIE GREENBACK LOOP" }
+        { start: 93, end: 112, id: "starmie", className: "fx-chroma-starmie", label: "1:33 MEGA STARMIE GREENBACK LOOP" },
+        { start: 98, end: 112, id: "runner", className: "fx-chroma-runner", label: "1:38 ORGA BLUEBACK LOOP" }
       ];
 
-      const timelineRunnerWindow = {
-        start: 98,
-        end: 112,
-        label: "1:38 BLUEBACK RUNNER"
-      };
+      const timelineRunnerWindow = null;
 
       function randomChar() {
         return corruptChars.charAt(Math.floor(Math.random() * corruptChars.length));
@@ -1521,11 +1514,22 @@
 
       function buildEyeLayer() {
         eyeLayer.innerHTML = "";
-        const count = 54;
-        const clusters = [
-          { x: 8, y: 18 }, { x: 28, y: 72 }, { x: 48, y: 36 },
-          { x: 72, y: 22 }, { x: 84, y: 76 }, { x: 18, y: 48 }
+        const safe = getVideoSafeRect(28);
+        const zones = [
+          { left: 0, top: 0, width: safe.viewportWidth, height: safe.top },
+          { left: 0, top: safe.top, width: safe.left, height: safe.bottom - safe.top },
+          { left: safe.right, top: safe.top, width: safe.viewportWidth - safe.right, height: safe.bottom - safe.top },
+          { left: 0, top: safe.bottom, width: safe.viewportWidth, height: safe.viewportHeight - safe.bottom }
+        ]
+          .map((zone) => ({ ...zone, area: Math.max(0, zone.width) * Math.max(0, zone.height) }))
+          .filter((zone) => zone.area > 2800);
+        const fallbackZones = [
+          { left: 0, top: 0, width: safe.viewportWidth, height: Math.max(80, safe.top), area: safe.viewportWidth * Math.max(80, safe.top) },
+          { left: 0, top: Math.max(0, safe.bottom), width: safe.viewportWidth, height: Math.max(80, safe.viewportHeight - safe.bottom), area: safe.viewportWidth * Math.max(80, safe.viewportHeight - safe.bottom) }
         ];
+        const usableZones = zones.length ? zones : fallbackZones;
+        const count = safe.viewportWidth < 560 ? 28 : safe.viewportWidth < 900 ? 40 : 58;
+
         for (let i = 0; i < count; i++) {
           const eye = document.createElement("img");
           eye.className = "eye-img";
@@ -1533,21 +1537,21 @@
           eye.alt = "";
           eye.decoding = "async";
 
-          const cluster = Math.random() < 0.58
-            ? clusters[Math.floor(Math.random() * clusters.length)]
-            : { x: Math.random() * 100, y: Math.random() * 100 };
-          const x = Math.max(-8, Math.min(104, cluster.x + (Math.random() - 0.5) * 28));
-          const y = Math.max(-8, Math.min(104, cluster.y + (Math.random() - 0.5) * 26));
-          const size = 28 + Math.pow(Math.random(), 1.9) * 150;
+          const zone = weightedChoice(usableZones);
+          const size = Math.round((safe.viewportWidth < 560 ? 44 : 58) + Math.pow(Math.random(), 1.55) * (safe.viewportWidth < 560 ? 104 : 190));
+          const maxX = Math.max(zone.left, zone.left + zone.width - size);
+          const maxY = Math.max(zone.top, zone.top + zone.height - size);
+          const x = Math.round(zone.left + Math.random() * Math.max(1, maxX - zone.left));
+          const y = Math.round(zone.top + Math.random() * Math.max(1, maxY - zone.top));
 
-          eye.style.left = `${x}%`;
-          eye.style.top = `${y}%`;
+          eye.style.left = `${x}px`;
+          eye.style.top = `${y}px`;
           eye.style.setProperty("--eye-size", `${size}px`);
-          eye.style.setProperty("--eye-opacity", `${0.36 + Math.random() * 0.55}`);
-          eye.style.setProperty("--eye-speed", `${0.8 + Math.random() * 2.4}s`);
-          eye.style.rotate = `${Math.random() * 360}deg`;
-          eye.style.zIndex = String(Math.floor(size));
-          eye.style.animationDelay = `${Math.random() * 1.8}s`;
+          eye.style.setProperty("--eye-opacity", `${0.72 + Math.random() * 0.28}`);
+          eye.style.setProperty("--eye-speed", `${0.9 + Math.random() * 2.1}s`);
+          eye.style.rotate = `${Math.round((Math.random() - 0.5) * 42)}deg`;
+          eye.style.zIndex = String(100 + i);
+          eye.style.animationDelay = `${Math.random() * 1.4}s`;
           eyeLayer.appendChild(eye);
         }
       }
@@ -1704,7 +1708,9 @@
           top = Math.max(margin, viewportHeight - width * 0.5625 - bottomGuard);
         }
 
+        const height = Math.max(82, Math.round(width * 0.5625));
         runnerLayer.style.width = `${Math.round(width)}px`;
+        runnerLayer.style.height = `${height}px`;
         runnerLayer.style.left = `${Math.round(left)}px`;
         runnerLayer.style.top = `${Math.round(top)}px`;
         runnerLayer.style.right = "auto";
@@ -1945,6 +1951,16 @@
           mode: "contain",
           active: false,
           lastDraw: 0
+        },
+        runner: {
+          layer: runnerLayer,
+          video: runnerVideo,
+          canvas: runnerCanvas,
+          ctx: runnerCanvas ? runnerCanvas.getContext("2d", { willReadFrequently: true }) : null,
+          key: "blue",
+          mode: "contain",
+          active: false,
+          lastDraw: 0
         }
       };
       let chromaRaf = 0;
@@ -2086,7 +2102,7 @@
 
       function stopAllChromaActors() {
         Object.keys(chromaActors).forEach(stopChromaActor);
-        document.body.classList.remove("fx-chroma-donald", "fx-chroma-starmie");
+        document.body.classList.remove("fx-chroma-donald", "fx-chroma-starmie", "fx-chroma-runner");
       }
 
       function syncChromaByTime(now) {
@@ -2105,27 +2121,17 @@
       }
 
 
-      function startRunnerLayer(label) {
-        if (!runnerLayer || runnerActive) return;
-        updateRunnerSafeLayout();
-        runnerActive = true;
-        runnerLayer.classList.add("active");
-        writeLog(label);
+      function startRunnerLayer(_label) {
+        // Runner is now handled by the shared chroma actor pipeline.
       }
 
       function stopRunnerLayer() {
-        if (!runnerLayer || !runnerActive) return;
-        runnerActive = false;
-        runnerLayer.classList.remove("active");
+        stopChromaActor("runner");
+        document.body.classList.remove("fx-chroma-runner");
       }
 
-      function syncRunnerByTime(now) {
-        const shouldBeActive = now >= timelineRunnerWindow.start && now < timelineRunnerWindow.end;
-        if (shouldBeActive) {
-          startRunnerLayer(timelineRunnerWindow.label);
-        } else {
-          stopRunnerLayer();
-        }
+      function syncRunnerByTime(_now) {
+        // Runner timing is included in timelineChromaWindows.
       }
 
       function resetTimelineForReplay() {
