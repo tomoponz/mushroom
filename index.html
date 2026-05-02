@@ -1095,41 +1095,41 @@
     }
 
     .meme-layer{
-      z-index:92;
+      z-index:3;
       opacity:0;
       mix-blend-mode:normal;
-      filter:contrast(1.08) saturate(1.12) drop-shadow(0 0 16px rgba(255,255,255,.16));
+      filter:contrast(1.12) saturate(1.18) drop-shadow(0 0 20px rgba(255,255,255,.20));
     }
-    .meme-layer.active{opacity:.94;}
+    .meme-layer.active{opacity:.96;}
     .catdance-layer{
       left:10px;
       top:44px;
-      width:min(20vw,220px);
+      width:min(34vw,430px);
       aspect-ratio:16/9;
     }
     .popcat-layer{
       left:12px;
       bottom:80px;
-      width:min(18vw,190px);
+      width:min(24vw,300px);
       aspect-ratio:640/362;
     }
     .chipicat-layer{
       left:50%;
       bottom:42px;
-      width:min(18vw,200px);
+      width:min(28vw,350px);
       aspect-ratio:16/9;
       transform:translateX(-50%);
     }
     .reimu-layer{
       left:14px;
       top:44%;
-      width:min(16vw,150px);
+      width:min(21vw,260px);
       aspect-ratio:4/3;
     }
     .naruto-layer{
       left:31%;
       top:18px;
-      width:min(17vw,178px);
+      width:min(25vw,320px);
       aspect-ratio:1/1;
     }
     body.fx-chroma-meme .meme-layer{
@@ -1179,11 +1179,11 @@
       .runner-layer{width:min(32vw,250px);}
       .donald-layer.active{opacity:.68;}
       .starmie-layer{width:min(36vw,230px); height:min(28vh,230px); right:10px; bottom:44px;}
-      .catdance-layer{width:24vw; top:8px; left:6px;}
-      .naruto-layer{width:20vw; top:8px; left:35%;}
-      .reimu-layer{width:18vw; left:6px; top:38%;}
-      .popcat-layer{width:22vw; left:6px; bottom:76px;}
-      .chipicat-layer{width:22vw; bottom:42px;}
+      .catdance-layer{width:46vw; top:8px; left:6px;}
+      .naruto-layer{width:34vw; top:8px; left:36%;}
+      .reimu-layer{width:30vw; left:6px; top:38%;}
+      .popcat-layer{width:34vw; left:6px; bottom:76px;}
+      .chipicat-layer{width:38vw; bottom:42px;}
     }
     @media (max-width:560px){
       .cross-layer{padding:6px 6px 44px; gap:1px;}
@@ -1191,12 +1191,12 @@
       .runner-layer{width:min(38vw,170px);}
       .donald-layer.active{opacity:.52;}
       .starmie-layer{width:34vw; height:34vw; right:8px; bottom:42px;}
-      .catdance-layer{width:28vw; top:6px; left:5px;}
-      .naruto-layer{width:23vw; top:5px; left:39%;}
-      .reimu-layer{width:21vw; top:36%; left:5px;}
-      .popcat-layer{width:26vw; left:5px; bottom:72px;}
-      .chipicat-layer{width:26vw; bottom:42px;}
-      .meme-layer.active{opacity:.82;}
+      .catdance-layer{width:56vw; top:6px; left:5px;}
+      .naruto-layer{width:40vw; top:5px; left:38%;}
+      .reimu-layer{width:34vw; top:36%; left:5px;}
+      .popcat-layer{width:40vw; left:5px; bottom:72px;}
+      .chipicat-layer{width:44vw; bottom:42px;}
+      .meme-layer.active{opacity:.90;}
     }
 
     .falling-mush{
@@ -1785,32 +1785,54 @@
       }
 
       function updateMemeSafeLayout() {
-        const safe = getVideoSafeRect(16);
+        const safe = getVideoSafeRect(8);
         const vw = safe.viewportWidth;
         const vh = safe.viewportHeight;
-        const margin = Math.max(5, Math.min(14, vw * 0.022));
-        const bottomGuard = 42;
-        const topSpace = Math.max(0, safe.top - margin * 2);
-        const leftSpace = Math.max(0, safe.left - margin * 2);
-        const bottomSpace = Math.max(0, vh - safe.bottom - bottomGuard - margin);
+        const margin = Math.max(4, Math.min(14, vw * 0.018));
+        const bottomGuard = 40;
         const compact = vw < 620;
 
-        const wWide = Math.max(70, Math.min(compact ? 120 : 190, vw * (compact ? 0.27 : 0.15)));
-        const wMid = Math.max(62, Math.min(compact ? 104 : 155, vw * (compact ? 0.23 : 0.12)));
-        const wSquare = Math.max(54, Math.min(compact ? 94 : 135, vw * (compact ? 0.20 : 0.105)));
+        // These meme actors are deliberately larger and uneven.
+        // They sit below the main video panel (CSS z-index:3), so overlap is allowed
+        // visually without covering the YouTube player itself.
+        const catW = Math.max(150, Math.min(compact ? 245 : 430, vw * (compact ? 0.54 : 0.33)));
+        const popW = Math.max(112, Math.min(compact ? 170 : 285, vw * (compact ? 0.38 : 0.21)));
+        const chipiW = Math.max(128, Math.min(compact ? 210 : 360, vw * (compact ? 0.44 : 0.27)));
+        const reimuW = Math.max(104, Math.min(compact ? 160 : 255, vw * (compact ? 0.34 : 0.19)));
+        const narutoW = Math.max(116, Math.min(compact ? 190 : 315, vw * (compact ? 0.40 : 0.24)));
 
-        const topY = topSpace >= wWide * .62 ? margin : Math.max(margin, Math.min(vh - bottomGuard - wWide * .56, safe.bottom + margin));
-        const bottomY = bottomSpace >= wWide * .56
-          ? Math.min(vh - bottomGuard - wWide * .56, safe.bottom + margin)
-          : Math.max(margin, safe.top - wWide * .56 - margin);
-        const leftX = margin;
-        const nearLeftX = leftSpace >= wMid ? margin : Math.max(margin, safe.left - wMid - margin);
+        const catH = catW * 9 / 16;
+        const popH = popW * 362 / 640;
+        const chipiH = chipiW * 9 / 16;
+        const reimuH = reimuW * .75;
+        const narutoH = narutoW;
 
-        setChromaBox(catDanceLayer, leftX, topY, wWide, wWide * 9 / 16);
-        setChromaBox(popCatLayer, leftX, bottomY, wWide, wWide * 362 / 640);
-        setChromaBox(chipiCatLayer, Math.max(margin, Math.min(vw - wWide - margin, safe.left + (safe.right - safe.left) * .40 - wWide / 2)), Math.max(margin, bottomY - (compact ? 42 : 58)), wWide, wWide * 9 / 16);
-        setChromaBox(reimuLayer, nearLeftX, Math.max(margin, Math.min(vh - bottomGuard - wMid * .75, safe.top + (safe.bottom - safe.top) * .46)), wMid, wMid * .75);
-        setChromaBox(narutoLayer, Math.max(margin, Math.min(vw - wSquare - margin, safe.left + (safe.right - safe.left) * .68)), Math.max(margin, topY + (compact ? 38 : 48)), wSquare, wSquare);
+        const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+        setChromaBox(catDanceLayer,
+          margin,
+          clamp(vh * (compact ? 0.055 : 0.045), margin, Math.max(margin, vh - bottomGuard - catH)),
+          catW, catH);
+
+        setChromaBox(popCatLayer,
+          margin + vw * .02,
+          clamp(vh - bottomGuard - popH - (compact ? 12 : 26), margin, Math.max(margin, vh - bottomGuard - popH)),
+          popW, popH);
+
+        setChromaBox(chipiCatLayer,
+          clamp(vw * (compact ? 0.43 : 0.47) - chipiW / 2, margin, Math.max(margin, vw - chipiW - margin)),
+          clamp(vh - bottomGuard - chipiH - (compact ? 4 : 10), margin, Math.max(margin, vh - bottomGuard - chipiH)),
+          chipiW, chipiH);
+
+        setChromaBox(reimuLayer,
+          clamp(margin + vw * (compact ? 0.02 : 0.035), margin, Math.max(margin, vw - reimuW - margin)),
+          clamp(vh * (compact ? 0.42 : 0.39), margin, Math.max(margin, vh - bottomGuard - reimuH)),
+          reimuW, reimuH);
+
+        setChromaBox(narutoLayer,
+          clamp(vw * (compact ? 0.58 : 0.47), margin, Math.max(margin, vw - narutoW - margin)),
+          clamp(vh * (compact ? 0.05 : 0.04), margin, Math.max(margin, vh - bottomGuard - narutoH)),
+          narutoW, narutoH);
       }
 
       function updateRunnerSafeLayout() {
