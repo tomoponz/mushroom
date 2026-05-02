@@ -660,7 +660,7 @@
       background:linear-gradient(180deg,#f7f7f7,#cfcfcf 28px,#ffffff 29px);
       box-shadow:8px 10px 0 rgba(0,0,0,.38), 0 0 26px rgba(255,16,56,.22);
       overflow:hidden;
-      transform:translate(-50%,-50%) rotate(var(--tab-rot, 0deg)) scale(var(--tab-scale, 1));
+      transform:translate(-50%,-50%) scale(var(--tab-scale, 1));
       animation:tabPop var(--tab-life, 1.15s) steps(2,end) forwards;
       pointer-events:none;
     }
@@ -701,10 +701,10 @@
       -webkit-user-drag:none;
     }
     @keyframes tabPop{
-      0%{opacity:0; transform:translate(-50%,-50%) rotate(var(--tab-rot, 0deg)) scale(.08)}
-      10%{opacity:1; transform:translate(-50%,-50%) rotate(calc(var(--tab-rot, 0deg) * -1)) scale(1.08)}
-      64%{opacity:1; transform:translate(-50%,-50%) rotate(var(--tab-rot, 0deg)) scale(var(--tab-scale, 1))}
-      100%{opacity:0; transform:translate(-50%,-50%) rotate(var(--tab-rot, 0deg)) scale(.82) translateY(16px)}
+      0%{opacity:0; transform:translate(-50%,-50%) scale(.08)}
+      10%{opacity:1; transform:translate(-50%,-50%) scale(1.08)}
+      64%{opacity:1; transform:translate(-50%,-50%) scale(var(--tab-scale, 1))}
+      100%{opacity:0; transform:translate(-50%,-50%) scale(.82) translateY(16px)}
     }
 
     body.fx-text-void .mojibake-layer,
@@ -1301,6 +1301,76 @@
         document.title = corruptText("ドコノコノキノコ.exe", 0.45);
       }
 
+      function weightedChoice(zones) {
+        const total = zones.reduce((sum, zone) => sum + zone.area, 0);
+        let pick = Math.random() * total;
+        for (const zone of zones) {
+          pick -= zone.area;
+          if (pick <= 0) return zone;
+        }
+        return zones[zones.length - 1];
+      }
+
+      function randomBetween(min, max) {
+        return min + Math.random() * Math.max(0, max - min);
+      }
+
+      function getSafeTabPoint(width, height) {
+        const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        const viewportHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+        const edge = 10;
+        const bottomGuard = 48;
+        const videoRect = videoShell?.getBoundingClientRect?.();
+
+        if (!videoRect || videoRect.width <= 0 || videoRect.height <= 0) {
+          return {
+            x: randomBetween(width / 2 + edge, viewportWidth - width / 2 - edge),
+            y: randomBetween(height / 2 + edge, viewportHeight - height / 2 - bottomGuard)
+          };
+        }
+
+        const margin = 22;
+        const protectedRect = {
+          left: Math.max(0, videoRect.left - margin),
+          top: Math.max(0, videoRect.top - margin),
+          right: Math.min(viewportWidth, videoRect.right + margin),
+          bottom: Math.min(viewportHeight, videoRect.bottom + margin)
+        };
+
+        const xMin = width / 2 + edge;
+        const xMax = viewportWidth - width / 2 - edge;
+        const yMin = height / 2 + edge;
+        const yMax = viewportHeight - height / 2 - bottomGuard;
+
+        const candidates = [
+          { name: "top", left: xMin, right: xMax, top: yMin, bottom: protectedRect.top - height / 2 },
+          { name: "bottom", left: xMin, right: xMax, top: protectedRect.bottom + height / 2, bottom: yMax },
+          { name: "left", left: xMin, right: protectedRect.left - width / 2, top: yMin, bottom: yMax },
+          { name: "right", left: protectedRect.right + width / 2, right: xMax, top: yMin, bottom: yMax }
+        ].map((zone) => ({
+          ...zone,
+          area: Math.max(0, zone.right - zone.left) * Math.max(0, zone.bottom - zone.top)
+        })).filter((zone) => zone.area > 0);
+
+        if (candidates.length > 0) {
+          const zone = weightedChoice(candidates);
+          return {
+            x: randomBetween(zone.left, zone.right),
+            y: randomBetween(zone.top, zone.bottom)
+          };
+        }
+
+        const fallbackTopSpace = Math.max(0, protectedRect.top - edge);
+        const fallbackBottomSpace = Math.max(0, viewportHeight - protectedRect.bottom - bottomGuard);
+        const preferTop = fallbackTopSpace >= fallbackBottomSpace;
+        return {
+          x: randomBetween(xMin, xMax),
+          y: preferTop
+            ? randomBetween(height / 2 + edge, Math.max(height / 2 + edge, protectedRect.top - height / 2))
+            : randomBetween(Math.min(yMax, protectedRect.bottom + height / 2), yMax)
+        };
+      }
+
       function spawnVirusTab() {
         if (!tabStormLayer) return;
         const tab = document.createElement("span");
@@ -1311,12 +1381,17 @@
         img.decoding = "async";
         tab.appendChild(img);
 
-        const width = 96 + Math.random() * 170;
-        tab.style.left = `${4 + Math.random() * 92}%`;
-        tab.style.top = `${6 + Math.random() * 88}%`;
+        const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        const baseMax = viewportWidth < 620 ? 132 : 218;
+        const baseMin = viewportWidth < 620 ? 74 : 96;
+        const width = baseMin + Math.random() * (baseMax - baseMin);
+        const height = width * 0.8 + 24;
+        const point = getSafeTabPoint(width, height);
+
+        tab.style.left = `${point.x}px`;
+        tab.style.top = `${point.y}px`;
         tab.style.setProperty("--tab-w", `${width}px`);
-        tab.style.setProperty("--tab-scale", `${0.78 + Math.random() * 0.72}`);
-        tab.style.setProperty("--tab-rot", `${(Math.random() - 0.5) * 24}deg`);
+        tab.style.setProperty("--tab-scale", `${0.84 + Math.random() * 0.46}`);
         tab.style.setProperty("--tab-life", `${0.86 + Math.random() * 1.35}s`);
         tab.style.zIndex = String(10 + Math.floor(Math.random() * 900));
         tabStormLayer.appendChild(tab);
