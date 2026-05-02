@@ -706,6 +706,44 @@
       background-position:center;
       transition:opacity .9s ease, filter .35s linear, transform .35s linear;
     }
+
+    .bg-video-layer{
+      position:fixed;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+      opacity:0;
+      overflow:hidden;
+      transition:opacity .16s linear, filter .16s linear;
+      background:#000;
+    }
+    .bg-video-layer.active{
+      opacity:.92;
+      filter:contrast(1.12) saturate(1.2) brightness(.82);
+    }
+    .bg-video-layer video{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      transform:scale(1.035);
+    }
+    .bg-video-layer::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.10) 0 1px, transparent 1px 5px),
+        radial-gradient(circle at 50% 50%, rgba(255,16,56,.16), transparent 55%);
+      mix-blend-mode:overlay;
+      opacity:.46;
+    }
+    body.fx-bg-video .panel{
+      background:rgba(0,0,0,.48);
+      backdrop-filter:blur(2px) contrast(1.05);
+      -webkit-backdrop-filter:blur(2px) contrast(1.05);
+    }
     body.fx-bg-black .effect-backdrop{
       opacity:1;
       background:#000;
@@ -1288,6 +1326,9 @@
   <div class="timeline-overlay" id="timelineOverlay" aria-hidden="true"></div>
   <div class="cross-layer" id="crossLayer" aria-hidden="true"></div>
   <div class="effect-backdrop" id="effectBackdrop" aria-hidden="true"></div>
+  <div class="bg-video-layer" id="bgVideoLayer" aria-hidden="true">
+    <video id="bgTimelineVideo" src="assets/video/bg-0105.mp4" muted loop playsinline preload="auto"></video>
+  </div>
   <div class="mosaic-layer" id="mosaicLayer" aria-hidden="true">
     <i class="mosaic-piece" data-piece="top"></i>
     <i class="mosaic-piece" data-piece="left"></i>
@@ -1402,6 +1443,7 @@
       const MAIN_VIDEO_ID = "NYnpsWrVGKg";
       const TAB_STORM_IMAGE = "assets/img/393.png";
       const RUNNER_VIDEO = "assets/video/orga-runner-bb.mp4";
+      const BG_TIMELINE_VIDEO = "assets/video/bg-0105.mp4";
       const coverThumb = document.getElementById("coverThumb");
       const thumbOverlay = document.getElementById("thumbOverlay");
       const videoShell = document.getElementById("videoShell");
@@ -1411,6 +1453,8 @@
       const timelineOverlay = document.getElementById("timelineOverlay");
       const crossLayer = document.getElementById("crossLayer");
       const effectBackdrop = document.getElementById("effectBackdrop");
+      const bgVideoLayer = document.getElementById("bgVideoLayer");
+      const bgTimelineVideo = document.getElementById("bgTimelineVideo");
       const mosaicLayer = document.getElementById("mosaicLayer");
       const mosaicPieces = Array.from(document.querySelectorAll(".mosaic-piece"));
       const warningLog = document.getElementById("warningLog");
@@ -1528,6 +1572,8 @@
       let crossLayerCount = -1;
       let runnerActive = false;
       let eightTextActive = false;
+      let bgVideoActive = false;
+      let bgVideoLastSync = 0;
       const eightTextNodes = new Map();
       const activeTimedClasses = new Set();
 
@@ -1568,6 +1614,13 @@
         start: 131,
         end: 195,
         label: "2:11 CROSS MARK GRID"
+      };
+
+      const timelineBackgroundVideoWindow = {
+        start: 65,
+        end: 69,
+        key: "bg-video-105",
+        label: "1:05 BACKGROUND VIDEO"
       };
 
       const timelineChromaWindows = [
@@ -2142,16 +2195,20 @@
 
       function getCrossGridMetrics() {
         const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-        const cell = viewportWidth < 420 ? 28 : viewportWidth < 620 ? 32 : viewportWidth < 920 ? 42 : 52;
+        const viewportHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+        const cell = viewportWidth < 420 ? 24 : viewportWidth < 620 ? 28 : viewportWidth < 920 ? 36 : 44;
         const paddingX = viewportWidth < 560 ? 12 : 20;
+        const paddingY = viewportWidth < 560 ? 50 : 64;
         const cols = Math.max(4, Math.floor((viewportWidth - paddingX) / (cell + 2)));
-        return { cell, cols };
+        const rows = Math.max(4, Math.floor((viewportHeight - paddingY) / (cell + 2)));
+        const maxVisible = Math.max(64, cols * rows);
+        return { cell, cols, rows, maxVisible };
       }
 
       function renderCrossLayer(count) {
         if (!crossLayer) return;
-        const safeCount = Math.max(0, Math.min(128, Math.floor(count)));
-        const { cell, cols } = getCrossGridMetrics();
+        const { cell, cols, maxVisible } = getCrossGridMetrics();
+        const safeCount = Math.max(0, Math.min(maxVisible, Math.floor(count)));
         crossLayer.style.setProperty("--cross-cell", `${cell}px`);
         crossLayer.style.setProperty("--cross-cols", String(cols));
         if (crossLayerCount === safeCount && crossLayer.dataset.cols === String(cols)) return;
@@ -2179,7 +2236,7 @@
           }
           return;
         }
-        const count = Math.floor(now - timelineCrossWindow.start) + 1;
+        const count = Math.floor((now - timelineCrossWindow.start) * 7) + 1;
         crossLayer.classList.add("active");
         renderCrossLayer(count);
       }
@@ -2495,6 +2552,51 @@
         // Runner timing is included in timelineChromaWindows.
       }
 
+      function stopBackgroundVideo() {
+        bgVideoActive = false;
+        bgVideoLastSync = 0;
+        document.body.classList.remove("fx-bg-video");
+        bgVideoLayer?.classList.remove("active");
+        if (bgTimelineVideo) {
+          bgTimelineVideo.pause();
+          try { bgTimelineVideo.currentTime = 0; } catch (_) {}
+        }
+      }
+
+      function syncBackgroundVideoByTime(now) {
+        const win = timelineBackgroundVideoWindow;
+        const active = now >= win.start && now < win.end;
+        if (!active) {
+          if (bgVideoActive) stopBackgroundVideo();
+          return;
+        }
+
+        const targetTime = Math.max(0, now - win.start);
+        if (!bgVideoActive) {
+          bgVideoActive = true;
+          document.body.classList.add("fx-bg-video");
+          bgVideoLayer?.classList.add("active");
+          if (bgTimelineVideo) {
+            bgTimelineVideo.muted = true;
+            bgTimelineVideo.loop = true;
+            bgTimelineVideo.playsInline = true;
+            try { bgTimelineVideo.currentTime = targetTime % Math.max(.1, bgTimelineVideo.duration || 8); } catch (_) {}
+            bgTimelineVideo.play().catch(() => {});
+          }
+          writeLog(win.label);
+          bgVideoLastSync = now;
+          return;
+        }
+
+        if (bgTimelineVideo && Number.isFinite(bgTimelineVideo.duration) && bgTimelineVideo.duration > 0) {
+          const expected = targetTime % bgTimelineVideo.duration;
+          if (Math.abs((bgTimelineVideo.currentTime || 0) - expected) > .45 || Math.abs(now - bgVideoLastSync) > 1.5) {
+            try { bgTimelineVideo.currentTime = expected; } catch (_) {}
+            bgVideoLastSync = now;
+          }
+        }
+      }
+
       function resetTimelineForReplay() {
         fired = new Set();
         clearBackgroundEffects();
@@ -2503,6 +2605,7 @@
         stopMushroomRain();
         stopTabStorm();
         stopAllChromaActors();
+        stopBackgroundVideo();
         setEightTextMode(false);
         stopRunnerLayer();
         rainLayer.innerHTML = "";
@@ -2527,6 +2630,13 @@
           video.muted = true;
           video.preload = "auto";
         });
+        if (BG_TIMELINE_VIDEO) {
+          const video = document.createElement("video");
+          video.src = BG_TIMELINE_VIDEO;
+          video.muted = true;
+          video.loop = true;
+          video.preload = "auto";
+        }
       }
 
       function enterCorruptionBase() {
@@ -2545,6 +2655,7 @@
         stopMushroomRain();
         stopTabStorm();
         stopAllChromaActors();
+        stopBackgroundVideo();
         setEightTextMode(false);
         stopRunnerLayer();
         clearBackgroundEffects();
@@ -2635,6 +2746,7 @@
         if (lastTimelineTime && now + 0.45 < lastTimelineTime) {
           resetOneShotEventsAfter(now);
           syncBackgroundByTime(now);
+          syncBackgroundVideoByTime(now);
           syncClassWindows(now);
           syncRainByTime(now);
           syncTabStormByTime(now);
@@ -2650,6 +2762,7 @@
         }
         updateProtectedVisualZones();
         syncBackgroundByTime(now);
+        syncBackgroundVideoByTime(now);
         syncClassWindows(now);
         syncRainByTime(now);
         syncTabStormByTime(now);
