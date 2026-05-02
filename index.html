@@ -997,6 +997,67 @@
       to{transform:translateX(36px)}
     }
 
+
+
+    .chroma-layer{
+      position:fixed;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .18s linear, filter .18s linear;
+      overflow:hidden;
+      contain:layout paint;
+    }
+    .chroma-layer.active{opacity:1;}
+    .chroma-layer video{display:none;}
+    .chroma-layer canvas{
+      width:100%;
+      height:100%;
+      display:block;
+    }
+    .donald-layer{
+      top:0;
+      right:0;
+      bottom:36px;
+      width:min(46vw,720px);
+      z-index:2;
+      opacity:0;
+      mix-blend-mode:screen;
+      filter:contrast(1.1) saturate(1.2) drop-shadow(0 0 22px rgba(255,255,255,.16));
+    }
+    .donald-layer.active{opacity:.86;}
+    .starmie-layer{
+      right:18px;
+      bottom:52px;
+      width:min(27vw,330px);
+      height:min(34vh,330px);
+      z-index:13;
+      opacity:0;
+      filter:contrast(1.12) saturate(1.12) drop-shadow(0 0 26px rgba(116,255,77,.30));
+    }
+    .starmie-layer.active{opacity:.96;}
+    body.fx-chroma-donald .effect-backdrop{
+      opacity:.76;
+      transform:translateX(-8px) scale(1.02);
+      transition-duration:.18s;
+    }
+    body.fx-chroma-starmie .starmie-layer{
+      animation:starmiePulse .72s steps(2,end) infinite;
+    }
+    @keyframes starmiePulse{
+      0%,100%{filter:contrast(1.12) saturate(1.12) drop-shadow(0 0 24px rgba(116,255,77,.25));}
+      50%{filter:contrast(1.35) saturate(1.45) hue-rotate(22deg) drop-shadow(0 0 36px rgba(255,16,56,.32));}
+    }
+    @media (max-width:860px){
+      .donald-layer{width:min(55vw,520px); opacity:0;}
+      .donald-layer.active{opacity:.68;}
+      .starmie-layer{width:min(36vw,230px); height:min(28vh,230px); right:10px; bottom:44px;}
+    }
+    @media (max-width:560px){
+      .donald-layer{width:65vw; bottom:36px;}
+      .donald-layer.active{opacity:.52;}
+      .starmie-layer{width:34vw; height:34vw; right:8px; bottom:42px;}
+    }
+
     .falling-mush{
       position:absolute;
       top:-140px;
@@ -1063,6 +1124,14 @@
   <div class="rain-layer" id="rainLayer" aria-hidden="true"></div>
   <div class="eye-layer" id="eyeLayer" aria-hidden="true"></div>
   <div class="tab-storm-layer" id="tabStormLayer" aria-hidden="true"></div>
+  <div class="chroma-layer donald-layer" id="donaldLayer" aria-hidden="true">
+    <video id="donaldVideo" src="assets/video/donald-dance-bb.mp4" muted loop playsinline preload="auto"></video>
+    <canvas id="donaldCanvas"></canvas>
+  </div>
+  <div class="chroma-layer starmie-layer" id="starmieLayer" aria-hidden="true">
+    <video id="starmieVideo" src="assets/video/starmie-awadance-gb.mp4" muted loop playsinline preload="auto"></video>
+    <canvas id="starmieCanvas"></canvas>
+  </div>
   <div class="warning-log" id="warningLog">[KINOCO_SYS] かわいい きのこ を 読み込み中...</div>
 
   <main class="stage">
@@ -1133,6 +1202,12 @@
       const rainLayer = document.getElementById("rainLayer");
       const eyeLayer = document.getElementById("eyeLayer");
       const tabStormLayer = document.getElementById("tabStormLayer");
+      const donaldLayer = document.getElementById("donaldLayer");
+      const donaldVideo = document.getElementById("donaldVideo");
+      const donaldCanvas = document.getElementById("donaldCanvas");
+      const starmieLayer = document.getElementById("starmieLayer");
+      const starmieVideo = document.getElementById("starmieVideo");
+      const starmieCanvas = document.getElementById("starmieCanvas");
 
       const corruptChars = "縺繧譁荳蜑笘繝蟆隧髫莠邱驥謗蜿譛螟蟄莨譛�▒▓█░ﾄﾞｺﾉｷﾉｺ";
       const MUSHROOM_RAIN_IMAGES = Object.freeze([
@@ -1143,6 +1218,10 @@
         "assets/img/mushroom5.png",
         "assets/img/mushroom6.png",
         "assets/img/mushroom7.png"
+      ]);
+      const CHROMA_VIDEO_SOURCES = Object.freeze([
+        "assets/video/donald-dance-bb.mp4",
+        "assets/video/starmie-awadance-gb.mp4"
       ]);
       const PRELOAD_IMAGES = Object.freeze([
         "assets/img/psychedelic.png",
@@ -1179,7 +1258,9 @@
         "fx-flicker",
         "fx-heartbeat",
         "fx-mosaic",
-        "fx-colorbar"
+        "fx-colorbar",
+        "fx-chroma-donald",
+        "fx-chroma-starmie"
       ];
 
       let glitchRate = 0.08;
@@ -1206,7 +1287,7 @@
       ];
 
       const timelineBackgrounds = [
-        { start: 28.5, end: 31.0, key: "psy-0285", className: "fx-psy", label: "0:28.5 PSYCHEDELIC" },
+        { start: 28.3, end: 30.8, key: "psy-0283", className: "fx-psy", label: "0:28.3 PSYCHEDELIC" },
         { start: 41, end: 42, key: "black-041", className: "fx-blackout", label: "0:41 BLACKOUT" },
         { start: 54.8, end: 55.8, key: "bg-black-0548", className: "fx-bg-black", label: "0:54.8 BACKGROUND BLACK" },
         { start: 65.8, end: 69.8, key: "red-1058", className: "fx-red", label: "1:05.8 RED SPLATTER" },
@@ -1230,6 +1311,11 @@
 
       const timelineTabStormWindows = [
         { start: 0, end: 5, key: "tabstorm-000", label: "0:00 VIRUS TAB STORM" }
+      ];
+
+      const timelineChromaWindows = [
+        { start: 88, end: 112, id: "donald", className: "fx-chroma-donald", label: "1:28 DONALD BLUEBACK LOOP" },
+        { start: 93, end: 112, id: "starmie", className: "fx-chroma-starmie", label: "1:33 MEGA STARMIE GREENBACK LOOP" }
       ];
 
       function randomChar() {
@@ -1553,6 +1639,184 @@
         if (wasActive) writeLog(label);
       }
 
+      const chromaActors = {
+        donald: {
+          layer: donaldLayer,
+          video: donaldVideo,
+          canvas: donaldCanvas,
+          ctx: donaldCanvas ? donaldCanvas.getContext("2d", { willReadFrequently: true }) : null,
+          key: "blue",
+          mode: "cover",
+          active: false,
+          lastDraw: 0
+        },
+        starmie: {
+          layer: starmieLayer,
+          video: starmieVideo,
+          canvas: starmieCanvas,
+          ctx: starmieCanvas ? starmieCanvas.getContext("2d", { willReadFrequently: true }) : null,
+          key: "green",
+          mode: "contain",
+          active: false,
+          lastDraw: 0
+        }
+      };
+      let chromaRaf = 0;
+
+      function configureCanvas(actor) {
+        if (!actor.canvas) return { w: 0, h: 0 };
+        const rect = actor.canvas.getBoundingClientRect();
+        const ratio = Math.min(1.5, Math.max(1, window.devicePixelRatio || 1));
+        const w = Math.max(2, Math.round(rect.width * ratio));
+        const h = Math.max(2, Math.round(rect.height * ratio));
+        if (actor.canvas.width !== w || actor.canvas.height !== h) {
+          actor.canvas.width = w;
+          actor.canvas.height = h;
+        }
+        return { w, h };
+      }
+
+      function videoDrawRect(video, w, h, mode) {
+        const vw = video.videoWidth || 16;
+        const vh = video.videoHeight || 9;
+        const canvasRatio = w / h;
+        const videoRatio = vw / vh;
+        let dw = w;
+        let dh = h;
+        let dx = 0;
+        let dy = 0;
+
+        if (mode === "contain") {
+          if (videoRatio > canvasRatio) {
+            dw = w;
+            dh = w / videoRatio;
+            dy = (h - dh) / 2;
+          } else {
+            dh = h;
+            dw = h * videoRatio;
+            dx = (w - dw) / 2;
+          }
+        } else if (videoRatio > canvasRatio) {
+          dh = h;
+          dw = h * videoRatio;
+          dx = w - dw;
+        } else {
+          dw = w;
+          dh = w / videoRatio;
+          dy = (h - dh) / 2;
+        }
+        return { dx, dy, dw, dh };
+      }
+
+      function removeChromaPixels(actor, w, h) {
+        const ctx = actor.ctx;
+        if (!ctx || !w || !h) return;
+        let frame;
+        try {
+          frame = ctx.getImageData(0, 0, w, h);
+        } catch (_) {
+          return;
+        }
+        const data = frame.data;
+        const isBlue = actor.key === "blue";
+
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          let alpha = data[i + 3];
+          const maxOther = isBlue ? Math.max(r, g) : Math.max(r, b);
+          const keyValue = isBlue ? b : g;
+          const dominance = keyValue - maxOther;
+          const strongKey = isBlue
+            ? (b > 72 && dominance > 24 && b > r * 1.22 && b > g * 1.12)
+            : (g > 76 && dominance > 24 && g > r * 1.18 && g > b * 1.10);
+          const softKey = isBlue
+            ? (b > 58 && dominance > 10 && b > r * 1.10 && b > g * 1.04)
+            : (g > 60 && dominance > 10 && g > r * 1.08 && g > b * 1.03);
+
+          if (strongKey) {
+            data[i + 3] = 0;
+          } else if (softKey) {
+            data[i + 3] = Math.round(alpha * 0.32);
+          } else if (isBlue && b > r && b > g) {
+            data[i + 2] = Math.max(0, b - Math.max(10, dominance * 0.35));
+          } else if (!isBlue && g > r && g > b) {
+            data[i + 1] = Math.max(0, g - Math.max(10, dominance * 0.35));
+          }
+        }
+        ctx.putImageData(frame, 0, 0);
+      }
+
+      function drawChromaActor(actor, timestamp) {
+        if (!actor.active || !actor.video || !actor.ctx || !actor.canvas) return;
+        if (timestamp - actor.lastDraw < 33) return;
+        actor.lastDraw = timestamp;
+        const { w, h } = configureCanvas(actor);
+        if (!w || !h || actor.video.readyState < 2) return;
+        const ctx = actor.ctx;
+        ctx.clearRect(0, 0, w, h);
+        const rect = videoDrawRect(actor.video, w, h, actor.mode);
+        ctx.drawImage(actor.video, rect.dx, rect.dy, rect.dw, rect.dh);
+        removeChromaPixels(actor, w, h);
+      }
+
+      function chromaLoop(timestamp) {
+        let anyActive = false;
+        Object.values(chromaActors).forEach((actor) => {
+          if (actor.active) {
+            anyActive = true;
+            drawChromaActor(actor, timestamp);
+          }
+        });
+        chromaRaf = anyActive ? requestAnimationFrame(chromaLoop) : 0;
+      }
+
+      function startChromaActor(id, label) {
+        const actor = chromaActors[id];
+        if (!actor || actor.active) return;
+        actor.active = true;
+        actor.layer?.classList.add("active");
+        actor.video.muted = true;
+        actor.video.loop = true;
+        actor.video.playsInline = true;
+        actor.video.currentTime = 0;
+        actor.video.play().catch(() => {});
+        if (!chromaRaf) chromaRaf = requestAnimationFrame(chromaLoop);
+        writeLog(label);
+      }
+
+      function stopChromaActor(id) {
+        const actor = chromaActors[id];
+        if (!actor || !actor.active) return;
+        actor.active = false;
+        actor.layer?.classList.remove("active");
+        actor.video.pause();
+        if (actor.ctx && actor.canvas) {
+          actor.ctx.clearRect(0, 0, actor.canvas.width, actor.canvas.height);
+        }
+      }
+
+      function stopAllChromaActors() {
+        Object.keys(chromaActors).forEach(stopChromaActor);
+        document.body.classList.remove("fx-chroma-donald", "fx-chroma-starmie");
+      }
+
+      function syncChromaByTime(now) {
+        for (const item of timelineChromaWindows) {
+          const shouldBeActive = now >= item.start && now < item.end;
+          const actor = chromaActors[item.id];
+          const isActive = Boolean(actor?.active);
+          if (shouldBeActive && !isActive) {
+            document.body.classList.add(item.className);
+            startChromaActor(item.id, item.label);
+          } else if (!shouldBeActive && isActive) {
+            document.body.classList.remove(item.className);
+            stopChromaActor(item.id);
+          }
+        }
+      }
+
       function resetTimelineForReplay() {
         fired = new Set();
         clearBackgroundEffects();
@@ -1560,6 +1824,7 @@
         activeTimedClasses.clear();
         stopMushroomRain();
         stopTabStorm();
+        stopAllChromaActors();
         rainLayer.innerHTML = "";
         if (tabStormLayer) tabStormLayer.innerHTML = "";
         glitchRate = 0.18;
@@ -1572,6 +1837,12 @@
           const img = new Image();
           img.decoding = "async";
           img.src = src;
+        });
+        CHROMA_VIDEO_SOURCES.forEach((src) => {
+          const video = document.createElement("video");
+          video.src = src;
+          video.muted = true;
+          video.preload = "auto";
         });
       }
 
@@ -1590,6 +1861,7 @@
       function endToCorruptedIdle() {
         stopMushroomRain();
         stopTabStorm();
+        stopAllChromaActors();
         clearBackgroundEffects();
         activeTimedClasses.forEach((className) => document.body.classList.remove(className));
         activeTimedClasses.clear();
@@ -1677,6 +1949,7 @@
           syncClassWindows(now);
           syncRainByTime(now);
           syncTabStormByTime(now);
+          syncChromaByTime(now);
         }
         lastTimelineTime = now;
 
@@ -1684,6 +1957,7 @@
         syncClassWindows(now);
         syncRainByTime(now);
         syncTabStormByTime(now);
+        syncChromaByTime(now);
 
         for (const event of timelineEvents) {
           if (now >= event.time && !fired.has(event.id)) {
