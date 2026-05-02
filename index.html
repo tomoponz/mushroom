@@ -7,6 +7,10 @@
   <meta name="description" content="子供向けのきのこのうたから、文字化けと菌類ホラーへ崩れていく実験ページ。" />
   <meta property="og:title" content="ドコノコノキノコ.exe" />
   <meta property="og:description" content="かわいいキノコの入口から、狂気の菌類ページへ。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://tomoponz.github.io/mushroom/" />
+  <meta property="og:image" content="https://img.youtube.com/vi/iH0ze-eg54Y/hqdefault.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="theme-color" content="#f7dd76" />
 
   <style>
@@ -387,12 +391,23 @@
       font-weight:950;
       white-space:nowrap;
     }
-    .marquee span{
+    .marquee-track{
+      display:flex;
+      align-items:center;
+      width:max-content;
+      min-width:200%;
+      animation:marq 24s linear infinite;
+      will-change:transform;
+    }
+    .marquee-item{
+      flex:0 0 auto;
       display:inline-block;
       padding-right:44px;
-      animation:marq 18s linear infinite;
     }
-    @keyframes marq{to{transform:translateX(-100%)}}
+    @keyframes marq{
+      from{transform:translateX(0)}
+      to{transform:translateX(-50%)}
+    }
 
     .moji{
       position:absolute;
@@ -1327,7 +1342,7 @@
   <div class="cross-layer" id="crossLayer" aria-hidden="true"></div>
   <div class="effect-backdrop" id="effectBackdrop" aria-hidden="true"></div>
   <div class="bg-video-layer" id="bgVideoLayer" aria-hidden="true">
-    <video id="bgTimelineVideo" src="assets/video/bg-0105.mp4" muted loop playsinline preload="auto"></video>
+    <video id="bgTimelineVideo" src="assets/video/bg-0105.mp4" muted loop playsinline preload="metadata"></video>
   </div>
   <div class="mosaic-layer" id="mosaicLayer" aria-hidden="true">
     <i class="mosaic-piece" data-piece="top"></i>
@@ -1356,35 +1371,35 @@
   <div class="eye-layer" id="eyeLayer" aria-hidden="true"></div>
   <div class="tab-storm-layer" id="tabStormLayer" aria-hidden="true"></div>
   <div class="chroma-layer donald-layer" id="donaldLayer" aria-hidden="true">
-    <video id="donaldVideo" src="assets/video/donald-dance-bb.mp4" muted loop playsinline preload="auto"></video>
+    <video id="donaldVideo" src="assets/video/donald-dance-bb.mp4" muted loop playsinline preload="metadata"></video>
     <canvas id="donaldCanvas"></canvas>
   </div>
   <div class="chroma-layer starmie-layer" id="starmieLayer" aria-hidden="true">
-    <video id="starmieVideo" src="assets/video/starmie-awadance-gb.mp4" muted loop playsinline preload="auto"></video>
+    <video id="starmieVideo" src="assets/video/starmie-awadance-gb.mp4" muted loop playsinline preload="metadata"></video>
     <canvas id="starmieCanvas"></canvas>
   </div>
   <div class="chroma-layer runner-layer" id="runnerLayer" aria-hidden="true">
-    <video id="runnerVideo" src="assets/video/orga-runner-bb.mp4" muted loop playsinline preload="auto"></video>
+    <video id="runnerVideo" src="assets/video/orga-runner-bb.mp4" muted loop playsinline preload="metadata"></video>
     <canvas id="runnerCanvas"></canvas>
   </div>
   <div class="chroma-layer meme-layer catdance-layer" id="catDanceLayer" aria-hidden="true">
-    <video id="catDanceVideo" src="assets/video/cat-dance-gb.mp4" muted loop playsinline preload="auto"></video>
+    <video id="catDanceVideo" src="assets/video/cat-dance-gb.mp4" muted loop playsinline preload="metadata"></video>
     <canvas id="catDanceCanvas"></canvas>
   </div>
   <div class="chroma-layer meme-layer popcat-layer" id="popCatLayer" aria-hidden="true">
-    <video id="popCatVideo" src="assets/video/pop-cat-gb.mp4" muted loop playsinline preload="auto"></video>
+    <video id="popCatVideo" src="assets/video/pop-cat-gb.mp4" muted loop playsinline preload="metadata"></video>
     <canvas id="popCatCanvas"></canvas>
   </div>
   <div class="chroma-layer meme-layer chipicat-layer" id="chipiCatLayer" aria-hidden="true">
-    <video id="chipiCatVideo" src="assets/video/chipi-cat-gb.mp4" muted loop playsinline preload="auto"></video>
+    <video id="chipiCatVideo" src="assets/video/chipi-cat-gb.mp4" muted loop playsinline preload="metadata"></video>
     <canvas id="chipiCatCanvas"></canvas>
   </div>
   <div class="chroma-layer meme-layer reimu-layer" id="reimuLayer" aria-hidden="true">
-    <video id="reimuVideo" src="assets/video/reimu-bb.mp4" muted loop playsinline preload="auto"></video>
+    <video id="reimuVideo" src="assets/video/reimu-bb.mp4" muted loop playsinline preload="metadata"></video>
     <canvas id="reimuCanvas"></canvas>
   </div>
   <div class="chroma-layer meme-layer naruto-layer" id="narutoLayer" aria-hidden="true">
-    <video id="narutoVideo" src="assets/video/naruto-gb.mp4" muted loop playsinline preload="auto"></video>
+    <video id="narutoVideo" src="assets/video/naruto-gb.mp4" muted loop playsinline preload="metadata"></video>
     <canvas id="narutoCanvas"></canvas>
   </div>
   <div class="warning-log" id="warningLog">[KINOCO_SYS] かわいい きのこ を 読み込み中...</div>
@@ -1431,9 +1446,14 @@
   </main>
 
   <div class="marquee" aria-hidden="true">
-    <span id="marqueeText">🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　</span>
-    <span>🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　</span>
-    <span>🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　</span>
+    <div class="marquee-track" id="marqueeTrack">
+      <span class="marquee-item" data-clean="🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　">🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　</span>
+      <span class="marquee-item" data-clean="🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　">🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　</span>
+      <span class="marquee-item" data-clean="🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　">🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　</span>
+      <span class="marquee-item" data-clean="🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　">🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　</span>
+      <span class="marquee-item" data-clean="🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　">🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　</span>
+      <span class="marquee-item" data-clean="🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　">🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　</span>
+    </div>
   </div>
 
   <script>
@@ -1458,7 +1478,7 @@
       const mosaicLayer = document.getElementById("mosaicLayer");
       const mosaicPieces = Array.from(document.querySelectorAll(".mosaic-piece"));
       const warningLog = document.getElementById("warningLog");
-      const marqueeText = document.getElementById("marqueeText");
+      const marqueeItems = Array.from(document.querySelectorAll(".marquee-item"));
       const glitchTargets = Array.from(document.querySelectorAll(".glitch-text"));
       const mojibakeLayer = document.getElementById("mojibakeLayer");
       const rainLayer = document.getElementById("rainLayer");
@@ -1500,16 +1520,6 @@
         "assets/img/mushroom5.png",
         "assets/img/mushroom6.png",
         "assets/img/mushroom7.png"
-      ]);
-      const CHROMA_VIDEO_SOURCES = Object.freeze([
-        "assets/video/donald-dance-bb.mp4",
-        "assets/video/starmie-awadance-gb.mp4",
-        RUNNER_VIDEO,
-        "assets/video/cat-dance-gb.mp4",
-        "assets/video/pop-cat-gb.mp4",
-        "assets/video/chipi-cat-gb.mp4",
-        "assets/video/reimu-bb.mp4",
-        "assets/video/naruto-gb.mp4"
       ]);
       const PRELOAD_IMAGES = Object.freeze([
         "assets/img/psychedelic.png",
@@ -1566,6 +1576,7 @@
       let activeBackgroundTimer = null;
       let activeBackgroundKey = "";
       let lastTimelineTime = 0;
+      let lastProtectedZoneUpdate = -Infinity;
       let rainActive = false;
       let tabStormActive = false;
       let tabStormTimer = null;
@@ -1634,7 +1645,6 @@
         { start: 102, end: 112, id: "naruto", className: "fx-chroma-meme", label: "1:42 NARUTO GREENBACK LOOP" }
       ];
 
-      const timelineRunnerWindow = null;
 
       function randomChar() {
         return corruptChars.charAt(Math.floor(Math.random() * corruptChars.length));
@@ -1692,7 +1702,10 @@
             const clean = target.dataset.clean || target.textContent || "";
             target.textContent = corruptText(clean, glitchRate);
           });
-          marqueeText.textContent = corruptText("🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　", Math.min(0.72, glitchRate + 0.18));
+          const marqueeClean = "🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　";
+          marqueeItems.forEach((item) => {
+            item.textContent = corruptText(marqueeClean, Math.min(0.72, glitchRate + 0.18));
+          });
         }, 78);
       }
 
@@ -1823,7 +1836,9 @@
         glitchTargets.forEach((target) => {
           if (target.dataset.clean) target.textContent = target.dataset.clean;
         });
-        marqueeText.textContent = "🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　";
+        marqueeItems.forEach((item) => {
+          item.textContent = item.dataset.clean || "🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　";
+        });
         document.title = "ﾄﾞｺﾉｺﾉｷﾉｺ.exe";
       }
 
@@ -2514,12 +2529,7 @@
           "fx-chroma-donald",
           "fx-chroma-starmie",
           "fx-chroma-runner",
-          "fx-chroma-meme",
-          "fx-chroma-catdance",
-          "fx-chroma-popcat",
-          "fx-chroma-chipicat",
-          "fx-chroma-reimu",
-          "fx-chroma-naruto"
+          "fx-chroma-meme"
         );
       }
 
@@ -2548,9 +2558,6 @@
         document.body.classList.remove("fx-chroma-runner");
       }
 
-      function syncRunnerByTime(_now) {
-        // Runner timing is included in timelineChromaWindows.
-      }
 
       function stopBackgroundVideo() {
         bgVideoActive = false;
@@ -2613,36 +2620,34 @@
         if (crossLayer) crossLayer.replaceChildren();
         if (crossLayer) crossLayer.classList.remove("active");
         crossLayerCount = -1;
-        glitchRate = 0.18;
+        glitchRate = 0.20;
         activeBackgroundKey = "";
         lastTimelineTime = 0;
       }
 
-      function preloadTimelineImages() {
+      function preloadTimelineAssets() {
         PRELOAD_IMAGES.forEach((src) => {
           const img = new Image();
           img.decoding = "async";
           img.src = src;
         });
-        CHROMA_VIDEO_SOURCES.forEach((src) => {
-          const video = document.createElement("video");
-          video.src = src;
+
+        const timelineVideos = [
+          bgTimelineVideo,
+          ...Object.values(chromaActors).map((actor) => actor.video)
+        ].filter(Boolean);
+
+        timelineVideos.forEach((video) => {
           video.muted = true;
-          video.preload = "auto";
+          video.playsInline = true;
+          video.preload = "metadata";
+          try { video.load(); } catch (_) {}
         });
-        if (BG_TIMELINE_VIDEO) {
-          const video = document.createElement("video");
-          video.src = BG_TIMELINE_VIDEO;
-          video.muted = true;
-          video.loop = true;
-          video.preload = "auto";
-        }
       }
 
       function enterCorruptionBase() {
-        preloadTimelineImages();
+        preloadTimelineAssets();
         document.body.classList.add("corrupted");
-        document.documentElement.lang = "ja";
         document.title = "ﾄﾞｺﾉｺﾉｷﾉｺ.exe";
         buildMojibakeRain();
         startMojibake();
@@ -2753,14 +2758,18 @@
           syncEightTextByTime(now);
           syncCrossLayerByTime(now);
           syncChromaByTime(now);
-          syncRunnerByTime(now);
         }
         lastTimelineTime = now;
 
-        if (document.body.classList.contains("fx-mosaic") || document.body.classList.contains("fx-chroma-donald")) {
+        const needsProtectedZoneUpdate =
+          document.body.classList.contains("fx-mosaic") ||
+          document.body.classList.contains("fx-eyes") ||
+          Boolean(document.querySelector(".chroma-layer.active"));
+
+        if (needsProtectedZoneUpdate && now - lastProtectedZoneUpdate > 0.18) {
           updateProtectedVisualZones();
+          lastProtectedZoneUpdate = now;
         }
-        updateProtectedVisualZones();
         syncBackgroundByTime(now);
         syncBackgroundVideoByTime(now);
         syncClassWindows(now);
