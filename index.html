@@ -586,6 +586,42 @@
 
 
 
+
+
+    .mosaic-layer{
+      position:fixed;
+      inset:0;
+      z-index:90;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .10s linear;
+    }
+    body.fx-mosaic .mosaic-layer{opacity:1;}
+    .mosaic-piece{
+      position:fixed;
+      display:block;
+      pointer-events:none;
+      overflow:hidden;
+      backdrop-filter:blur(11px) contrast(1.75) saturate(.86);
+      -webkit-backdrop-filter:blur(11px) contrast(1.75) saturate(.86);
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.20) 0 12px, rgba(0,0,0,.24) 12px 24px),
+        repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0 12px, rgba(255,255,255,.10) 12px 24px);
+      background-blend-mode:overlay;
+      mix-blend-mode:normal;
+    }
+    .mosaic-piece::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255,255,255,.10) 1px, transparent 1px);
+      background-size:18px 18px;
+      opacity:.74;
+      mix-blend-mode:overlay;
+    }
+
     .effect-backdrop{
       position:fixed;
       inset:0;
@@ -673,25 +709,7 @@
     }
 
     body.fx-mosaic .effect-backdrop{
-      opacity:.98;
-      background:
-        linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.34)),
-        repeating-conic-gradient(from 45deg, rgba(255,255,255,.24) 0 25%, rgba(0,0,0,.34) 0 50%) 0 0 / 28px 28px,
-        radial-gradient(circle at 50% 50%, rgba(255,16,56,.24), transparent 54%),
-        linear-gradient(180deg,#120006,#020202);
-      mix-blend-mode:normal;
-      image-rendering:pixelated;
-      filter:contrast(1.55) saturate(1.25);
-      transition-duration:.12s;
-    }
-    body.fx-mosaic .side,
-    body.fx-mosaic .cute-head,
-    body.fx-mosaic .caption,
-    body.fx-mosaic .marquee,
-    body.fx-mosaic .mushroom-field,
-    body.fx-mosaic .warning-log{
-      image-rendering:pixelated;
-      filter:contrast(1.45) saturate(1.25);
+      opacity:0 !important;
     }
     body.fx-mosaic .thumb-shell,
     body.fx-mosaic #player{
@@ -1019,7 +1037,7 @@
       right:0;
       bottom:36px;
       width:min(46vw,720px);
-      z-index:2;
+      z-index:94;
       opacity:0;
       mix-blend-mode:screen;
       filter:contrast(1.1) saturate(1.2) drop-shadow(0 0 22px rgba(255,255,255,.16));
@@ -1030,7 +1048,7 @@
       bottom:52px;
       width:min(27vw,330px);
       height:min(34vh,330px);
-      z-index:13;
+      z-index:95;
       opacity:0;
       filter:contrast(1.12) saturate(1.12) drop-shadow(0 0 26px rgba(116,255,77,.30));
     }
@@ -1111,6 +1129,12 @@
   <div class="flash" id="flash" aria-hidden="true"></div>
   <div class="timeline-overlay" id="timelineOverlay" aria-hidden="true"></div>
   <div class="effect-backdrop" id="effectBackdrop" aria-hidden="true"></div>
+  <div class="mosaic-layer" id="mosaicLayer" aria-hidden="true">
+    <i class="mosaic-piece" data-piece="top"></i>
+    <i class="mosaic-piece" data-piece="left"></i>
+    <i class="mosaic-piece" data-piece="right"></i>
+    <i class="mosaic-piece" data-piece="bottom"></i>
+  </div>
 
   <div class="mushroom-field" aria-hidden="true">
     <span class="mush m1"><i class="eye l"></i><i class="eye r"></i><i class="mouth"></i></span>
@@ -1195,6 +1219,8 @@
       const flash = document.getElementById("flash");
       const timelineOverlay = document.getElementById("timelineOverlay");
       const effectBackdrop = document.getElementById("effectBackdrop");
+      const mosaicLayer = document.getElementById("mosaicLayer");
+      const mosaicPieces = Array.from(document.querySelectorAll(".mosaic-piece"));
       const warningLog = document.getElementById("warningLog");
       const marqueeText = document.getElementById("marqueeText");
       const glitchTargets = Array.from(document.querySelectorAll(".glitch-text"));
@@ -1468,6 +1494,80 @@
         flashBang();
         temporaryBodyClass("fx-glitch", durationMs, label);
         document.title = corruptText("ドコノコノキノコ.exe", 0.45);
+      }
+
+
+      function getVideoSafeRect(extra = 8) {
+        const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        const viewportHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+        const rect = videoShell?.getBoundingClientRect?.();
+        if (!rect || rect.width <= 0 || rect.height <= 0) {
+          return { left: viewportWidth * .18, top: viewportHeight * .22, right: viewportWidth * .82, bottom: viewportHeight * .78, viewportWidth, viewportHeight };
+        }
+        return {
+          left: Math.max(0, rect.left - extra),
+          top: Math.max(0, rect.top - extra),
+          right: Math.min(viewportWidth, rect.right + extra),
+          bottom: Math.min(viewportHeight, rect.bottom + extra),
+          viewportWidth,
+          viewportHeight
+        };
+      }
+
+      function setPieceRect(piece, left, top, width, height) {
+        if (!piece) return;
+        const safeWidth = Math.max(0, Math.round(width));
+        const safeHeight = Math.max(0, Math.round(height));
+        piece.style.left = `${Math.round(left)}px`;
+        piece.style.top = `${Math.round(top)}px`;
+        piece.style.width = `${safeWidth}px`;
+        piece.style.height = `${safeHeight}px`;
+        piece.style.display = safeWidth > 0 && safeHeight > 0 ? "block" : "none";
+      }
+
+      function updateMosaicMask() {
+        if (!mosaicLayer || !mosaicPieces.length) return;
+        const safe = getVideoSafeRect(10);
+        const pieceMap = Object.fromEntries(mosaicPieces.map((piece) => [piece.dataset.piece, piece]));
+        setPieceRect(pieceMap.top, 0, 0, safe.viewportWidth, safe.top);
+        setPieceRect(pieceMap.left, 0, safe.top, safe.left, safe.bottom - safe.top);
+        setPieceRect(pieceMap.right, safe.right, safe.top, safe.viewportWidth - safe.right, safe.bottom - safe.top);
+        setPieceRect(pieceMap.bottom, 0, safe.bottom, safe.viewportWidth, safe.viewportHeight - safe.bottom);
+      }
+
+      function updateChromaSafeLayout() {
+        const safe = getVideoSafeRect(14);
+        const viewportWidth = safe.viewportWidth;
+        const viewportHeight = safe.viewportHeight;
+        const bottomGuard = 36;
+        const desiredWidth = Math.min(720, Math.max(220, viewportWidth * 0.46));
+        const rightSpace = viewportWidth - safe.right - 10;
+
+        if (donaldLayer) {
+          if (rightSpace >= 180) {
+            const left = Math.max(safe.right + 10, viewportWidth - desiredWidth);
+            donaldLayer.style.left = `${Math.round(left)}px`;
+            donaldLayer.style.right = "0px";
+            donaldLayer.style.top = "0px";
+            donaldLayer.style.bottom = `${bottomGuard}px`;
+            donaldLayer.style.width = "auto";
+          } else {
+            const top = safe.bottom + 10 < viewportHeight - 150 ? safe.bottom + 10 : 0;
+            const height = Math.max(130, viewportHeight - top - bottomGuard);
+            const width = Math.min(desiredWidth, viewportWidth * .72);
+            donaldLayer.style.left = `${Math.round(viewportWidth - width)}px`;
+            donaldLayer.style.right = "0px";
+            donaldLayer.style.top = `${Math.round(top)}px`;
+            donaldLayer.style.bottom = "auto";
+            donaldLayer.style.width = `${Math.round(width)}px`;
+            donaldLayer.style.height = `${Math.round(height)}px`;
+          }
+        }
+      }
+
+      function updateProtectedVisualZones() {
+        updateMosaicMask();
+        updateChromaSafeLayout();
       }
 
       function weightedChoice(zones) {
@@ -1775,6 +1875,7 @@
       function startChromaActor(id, label) {
         const actor = chromaActors[id];
         if (!actor || actor.active) return;
+        updateProtectedVisualZones();
         actor.active = true;
         actor.layer?.classList.add("active");
         actor.video.muted = true;
@@ -1900,6 +2001,7 @@
           if (shouldBeActive && !isActive) {
             document.body.classList.add(item.className);
             activeTimedClasses.add(item.className);
+            if (item.className === "fx-mosaic") updateMosaicMask();
             writeLog(item.label);
           } else if (!shouldBeActive && isActive) {
             document.body.classList.remove(item.className);
@@ -1953,6 +2055,10 @@
         }
         lastTimelineTime = now;
 
+        if (document.body.classList.contains("fx-mosaic") || document.body.classList.contains("fx-chroma-donald")) {
+          updateProtectedVisualZones();
+        }
+        updateProtectedVisualZones();
         syncBackgroundByTime(now);
         syncClassWindows(now);
         syncRainByTime(now);
@@ -2015,6 +2121,7 @@
         const playerDiv = document.createElement("div");
         playerDiv.id = "player";
         videoShell.appendChild(playerDiv);
+        updateProtectedVisualZones();
 
         await loadYouTubeAPI();
 
@@ -2052,6 +2159,10 @@
 
       enterBtn.addEventListener("click", startMainVideo);
       panicBtn.addEventListener("click", startMainVideo);
+
+      window.addEventListener("resize", updateProtectedVisualZones, { passive: true });
+      window.addEventListener("scroll", updateProtectedVisualZones, { passive: true });
+      updateProtectedVisualZones();
 
       document.addEventListener("keydown", (event) => {
         if (event.shiftKey && event.key.toLowerCase() === "r") {
