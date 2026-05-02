@@ -562,6 +562,22 @@
       100%{opacity:0}
     }
 
+
+
+    .timeline-overlay{
+      position:fixed;
+      inset:0;
+      z-index:98;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .04s linear;
+    }
+    .timeline-overlay.invert{
+      opacity:1;
+      background:#fff;
+      mix-blend-mode:difference;
+    }
+
     /* ===== timeline effects ===== */
     body.fx-glitch{
       animation:hardGlitch .12s steps(2,end) infinite !important;
@@ -585,23 +601,35 @@
     }
 
     body.fx-invert{
-      filter:invert(1) hue-rotate(180deg) contrast(1.6) saturate(1.8);
+      filter:invert(1) hue-rotate(180deg) contrast(1.75) saturate(1.9);
+    }
+    body.fx-invert .panel,
+    body.fx-invert .mushroom-field,
+    body.fx-invert .marquee{
+      filter:invert(1) hue-rotate(180deg) contrast(1.75) saturate(1.9);
     }
 
     body.fx-psy{
       background:
-        conic-gradient(from 0deg at 50% 50%, #ff0048, #ffe600, #00ff73, #00b7ff, #8b00ff, #ff0048),
-        repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.24) 0 8px, rgba(0,0,0,.20) 8px 16px);
+        linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.38)),
+        url("assets/img/psychedelic.png") center / cover no-repeat fixed;
       animation:psySpin .26s linear infinite, screenPulse .6s steps(2,end) infinite !important;
     }
     body.fx-psy::before{
-      background:repeating-conic-gradient(from 0deg, rgba(255,255,255,.28) 0 10deg, transparent 10deg 18deg);
-      opacity:.88;
+      background:
+        repeating-conic-gradient(from 0deg, rgba(255,255,255,.20) 0 10deg, transparent 10deg 18deg),
+        repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.14) 0 8px, rgba(0,0,0,.18) 8px 16px);
+      opacity:.74;
       mix-blend-mode:overlay;
       animation:psyZoom .33s ease-in-out infinite alternate;
     }
-    @keyframes psySpin{to{filter:hue-rotate(360deg) saturate(2.5) contrast(1.4)}}
-    @keyframes psyZoom{from{transform:scale(1)} to{transform:scale(1.08) rotate(3deg)}}
+    body.fx-psy::after{
+      opacity:.52;
+      background:repeating-linear-gradient(0deg, rgba(255,255,255,.16) 0 2px, transparent 2px 7px);
+      mix-blend-mode:screen;
+    }
+    @keyframes psySpin{to{filter:hue-rotate(360deg) saturate(2.2) contrast(1.25)}}
+    @keyframes psyZoom{from{transform:scale(1)} to{transform:scale(1.055) rotate(1.5deg)}}
 
     body.fx-blackout{
       background:#000 !important;
@@ -644,23 +672,24 @@
 
     body.fx-red{
       background:
-        radial-gradient(circle at 12% 18%, rgba(255,255,255,.12) 0 28px, transparent 29px),
-        radial-gradient(circle at 25% 62%, rgba(255,0,45,.62) 0 54px, transparent 55px),
-        radial-gradient(circle at 80% 28%, rgba(255,0,45,.54) 0 72px, transparent 73px),
-        radial-gradient(circle at 55% 92%, rgba(255,0,45,.62) 0 120px, transparent 121px),
-        linear-gradient(180deg,#140005,#020202);
+        radial-gradient(circle at 50% 50%, rgba(255,16,56,.18), transparent 55%),
+        linear-gradient(180deg,#160005,#020202);
       animation:redThrob .2s steps(2,end) infinite !important;
     }
     body.fx-red::before{
-      opacity:.92;
-      background:
-        repeating-linear-gradient(115deg, rgba(255,16,56,.32) 0 12px, transparent 12px 26px),
-        radial-gradient(circle at 40% 40%, rgba(255,16,56,.42), transparent 22%);
+      opacity:1;
+      background:url("assets/img/splatter.png") center / cover no-repeat;
       mix-blend-mode:screen;
+      filter:contrast(1.25) saturate(1.25) brightness(.92);
+    }
+    body.fx-red::after{
+      opacity:.36;
+      background:repeating-linear-gradient(0deg, rgba(255,255,255,.12) 0 2px, transparent 2px 8px);
+      mix-blend-mode:overlay;
     }
     @keyframes redThrob{
-      0%,100%{filter:saturate(1.3) contrast(1.1)}
-      50%{filter:saturate(2.3) contrast(1.5) brightness(.82)}
+      0%,100%{filter:saturate(1.25) contrast(1.08)}
+      50%{filter:saturate(2.15) contrast(1.42) brightness(.74)}
     }
 
     body.fx-eyes .eye-layer{
@@ -668,10 +697,13 @@
     }
     body.fx-eyes{
       background:
-        radial-gradient(circle at 18% 20%, rgba(247,255,233,.20), transparent 11%),
-        radial-gradient(circle at 72% 28%, rgba(247,255,233,.20), transparent 13%),
-        radial-gradient(circle at 46% 74%, rgba(247,255,233,.18), transparent 14%),
+        radial-gradient(circle at 50% 50%, rgba(247,255,233,.18), transparent 56%),
         linear-gradient(180deg,#010101,#180309);
+    }
+    body.fx-eyes::before{
+      opacity:.42;
+      background:repeating-radial-gradient(circle at 50% 50%, rgba(255,16,56,.22) 0 2px, transparent 2px 10px);
+      mix-blend-mode:screen;
     }
 
     body.fx-taisho{
@@ -708,18 +740,17 @@
 
     body.fx-optical{
       background:
-        repeating-conic-gradient(from 0deg at 50% 50%, #000 0 10deg, #fff 10deg 20deg),
-        repeating-radial-gradient(circle at 50% 50%, rgba(116,255,77,.38) 0 8px, transparent 8px 16px);
-      background-blend-mode:difference;
+        linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.34)),
+        url("assets/img/optical-illusion.png") center / cover no-repeat fixed;
       animation:opticalSpin .9s linear infinite !important;
     }
     body.fx-optical::before{
-      opacity:.55;
+      opacity:.35;
       background:repeating-linear-gradient(45deg, rgba(255,16,56,.18) 0 8px, rgba(116,255,77,.18) 8px 16px);
       mix-blend-mode:difference;
     }
     @keyframes opticalSpin{
-      to{filter:hue-rotate(360deg) contrast(1.6)}
+      to{filter:hue-rotate(360deg) contrast(1.45)}
     }
 
     body.fx-wave{
@@ -756,17 +787,25 @@
 
     .falling-mush{
       position:absolute;
-      top:-90px;
-      width:42px;
-      height:52px;
-      font-size:42px;
-      line-height:1;
-      filter:drop-shadow(0 0 12px rgba(116,255,77,.45));
+      top:-140px;
+      width:var(--mush-size, 76px);
+      height:var(--mush-size, 76px);
+      display:block;
       animation:mushFall var(--fall-duration, 2.8s) linear forwards;
-      opacity:.95;
+      opacity:.96;
+      will-change:transform;
+    }
+    .falling-mush img{
+      display:block;
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      filter:drop-shadow(0 0 14px rgba(116,255,77,.36)) contrast(1.08) saturate(1.06);
+      user-select:none;
+      -webkit-user-drag:none;
     }
     @keyframes mushFall{
-      to{transform:translateY(120vh) rotate(var(--rot, 360deg))}
+      to{transform:translateY(128vh) rotate(var(--rot, 360deg))}
     }
 
     @media (max-width:860px){
@@ -797,6 +836,7 @@
 
 <body>
   <div class="flash" id="flash" aria-hidden="true"></div>
+  <div class="timeline-overlay" id="timelineOverlay" aria-hidden="true"></div>
 
   <div class="mushroom-field" aria-hidden="true">
     <span class="mush m1"><i class="eye l"></i><i class="eye r"></i><i class="mouth"></i></span>
@@ -869,6 +909,7 @@
       const enterBtn = document.getElementById("enterBtn");
       const panicBtn = document.getElementById("panicBtn");
       const flash = document.getElementById("flash");
+      const timelineOverlay = document.getElementById("timelineOverlay");
       const warningLog = document.getElementById("warningLog");
       const marqueeText = document.getElementById("marqueeText");
       const glitchTargets = Array.from(document.querySelectorAll(".glitch-text"));
@@ -877,6 +918,22 @@
       const eyeLayer = document.getElementById("eyeLayer");
 
       const corruptChars = "縺繧譁荳蜑笘繝蟆隧髫莠邱驥謗蜿譛螟蟄莨譛�▒▓█░ﾄﾞｺﾉｷﾉｺ";
+      const MUSHROOM_RAIN_IMAGES = Object.freeze([
+        "assets/img/mushroom1.png",
+        "assets/img/mushroom2.png",
+        "assets/img/mushroom3.png",
+        "assets/img/mushroom4.png",
+        "assets/img/mushroom5.png",
+        "assets/img/mushroom6.png",
+        "assets/img/mushroom7.png"
+      ]);
+      const PRELOAD_IMAGES = Object.freeze([
+        "assets/img/psychedelic.png",
+        "assets/img/splatter.png",
+        "assets/img/eye.png",
+        "assets/img/optical-illusion.png",
+        ...MUSHROOM_RAIN_IMAGES
+      ]);
       const logLines = [
         "[KINOCO_SYS] 目玉パーツを同期しています...",
         "[DOKO_NODE] 繝峨さ繝弱さ縺悟｢怜殖荳ｭ...",
@@ -912,7 +969,7 @@
 
       const timelineEvents = [
         { time: 9, id: "glitch-009", action: () => triggerGlitch(620, "0:09 GLITCH") },
-        { time: 18, id: "invert-018", action: () => temporaryBodyClass("fx-invert", 520, "0:18 INVERT") },
+        { time: 18, id: "invert-018", action: () => triggerInvert(900, "0:18 INVERT") },
         { time: 28, id: "psy-028", action: () => setBackgroundEffect("fx-psy", 3000, "0:28 PSYCHEDELIC") },
         { time: 41, id: "black-041", action: () => setBackgroundEffect("fx-blackout", 1000, "0:41 BLACKOUT") },
         { time: 54, id: "black-054", action: () => setBackgroundEffect("fx-blackout", 1000, "0:54 BLACKOUT") },
@@ -944,6 +1001,18 @@
         flash.classList.remove("active");
         void flash.offsetWidth;
         flash.classList.add("active");
+      }
+
+      function triggerInvert(durationMs = 900, label = "INVERT") {
+        writeLog(label);
+        document.body.classList.add("fx-invert");
+        timelineOverlay.classList.remove("invert");
+        void timelineOverlay.offsetWidth;
+        timelineOverlay.classList.add("invert");
+        setTimeout(() => {
+          document.body.classList.remove("fx-invert");
+          timelineOverlay.classList.remove("invert");
+        }, durationMs);
       }
 
       function writeLog(label) {
@@ -995,14 +1064,14 @@
 
       function buildEyeLayer() {
         eyeLayer.innerHTML = "";
-        for (let i = 0; i < 55; i++) {
+        for (let i = 0; i < 46; i++) {
           const eye = document.createElement("span");
           eye.className = "eye-symbol";
-          eye.textContent = Math.random() < 0.82 ? "👁" : "◉";
           eye.style.left = `${Math.random() * 100}%`;
           eye.style.top = `${Math.random() * 100}%`;
           eye.style.animationDelay = `${Math.random() * 1.5}s`;
-          eye.style.transform = `rotate(${Math.random() * 360}deg)`;
+          eye.style.setProperty("--eye-size", `${46 + Math.random() * 112}px`);
+          eye.style.rotate = `${Math.random() * 360}deg`;
           eyeLayer.appendChild(eye);
         }
       }
@@ -1046,13 +1115,17 @@
       function spawnFallingMushroom() {
         const mush = document.createElement("span");
         mush.className = "falling-mush";
-        mush.textContent = Math.random() < 0.78 ? "🍄" : "☠";
+        const img = document.createElement("img");
+        img.alt = "";
+        img.decoding = "async";
+        img.src = MUSHROOM_RAIN_IMAGES[Math.floor(Math.random() * MUSHROOM_RAIN_IMAGES.length)];
+        mush.appendChild(img);
         mush.style.left = `${Math.random() * 100}%`;
-        mush.style.setProperty("--fall-duration", `${1.4 + Math.random() * 2.2}s`);
-        mush.style.setProperty("--rot", `${(Math.random() > 0.5 ? 1 : -1) * (240 + Math.random() * 620)}deg`);
-        mush.style.fontSize = `${28 + Math.random() * 44}px`;
+        mush.style.setProperty("--fall-duration", `${1.35 + Math.random() * 2.4}s`);
+        mush.style.setProperty("--rot", `${(Math.random() > 0.5 ? 1 : -1) * (220 + Math.random() * 720)}deg`);
+        mush.style.setProperty("--mush-size", `${42 + Math.random() * 92}px`);
         rainLayer.appendChild(mush);
-        setTimeout(() => mush.remove(), 4200);
+        setTimeout(() => mush.remove(), 4700);
       }
 
       function startMushroomRain(label = "MUSHROOM RAIN") {
@@ -1082,7 +1155,16 @@
         glitchRate = 0.18;
       }
 
+      function preloadTimelineImages() {
+        PRELOAD_IMAGES.forEach((src) => {
+          const img = new Image();
+          img.decoding = "async";
+          img.src = src;
+        });
+      }
+
       function enterCorruptionBase() {
+        preloadTimelineImages();
         document.body.classList.add("corrupted");
         document.documentElement.lang = "ja";
         document.title = "ﾄﾞｺﾉｺﾉｷﾉｺ.exe";
