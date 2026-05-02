@@ -363,18 +363,21 @@
       to{translate:0 115vh}
     }
 
-    .eye-symbol{
+    .eye-img{
       position:absolute;
-      font-size:clamp(26px,5vw,62px);
-      line-height:1;
-      opacity:.86;
-      filter:drop-shadow(0 0 12px rgba(247,255,233,.45));
-      animation:eyeFloat 1.6s ease-in-out infinite alternate;
+      width:var(--eye-size, 72px);
+      height:auto;
+      opacity:var(--eye-opacity, .86);
+      filter:drop-shadow(0 0 14px rgba(247,255,233,.36)) contrast(1.12) saturate(.95);
+      animation:eyeFloat var(--eye-speed, 1.7s) ease-in-out infinite alternate;
       mix-blend-mode:screen;
+      transform-origin:center;
+      user-select:none;
+      -webkit-user-drag:none;
     }
     @keyframes eyeFloat{
-      from{transform:translateY(-6px) scale(.96)}
-      to{transform:translateY(7px) scale(1.08)}
+      from{translate:0 -6px; scale:.96}
+      to{translate:0 8px; scale:1.06}
     }
 
     .warning-log{
@@ -578,6 +581,73 @@
       mix-blend-mode:difference;
     }
 
+
+
+    .effect-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      opacity:0;
+      background:transparent;
+      background-size:cover;
+      background-position:center;
+      transition:opacity .9s ease, filter .35s linear, transform .35s linear;
+    }
+    body.fx-bg-black .effect-backdrop{
+      opacity:1;
+      background:#000;
+      transition-duration:.08s;
+    }
+    body.fx-red .effect-backdrop{
+      opacity:1;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,16,56,.20), transparent 54%),
+        url("assets/img/splatter.png") center / cover no-repeat;
+      filter:contrast(1.12) saturate(1.24) brightness(.88);
+      transition:opacity 1.15s ease;
+    }
+    body.fx-red .panel{
+      background:rgba(0,0,0,.38);
+      backdrop-filter:blur(3px);
+      -webkit-backdrop-filter:blur(3px);
+    }
+    body.fx-eyes .effect-backdrop{
+      opacity:.92;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(247,255,233,.12), transparent 58%),
+        linear-gradient(180deg,#010101,#160208);
+    }
+    body.fx-eyes .panel{
+      background:rgba(0,0,0,.46);
+    }
+    body.fx-taisho .effect-backdrop{
+      opacity:1;
+      background:
+        linear-gradient(180deg, rgba(56,24,9,.16), rgba(56,24,9,.28)),
+        url("assets/img/taisho.png") center / cover no-repeat;
+      filter:sepia(.22) contrast(1.05) saturate(.92);
+    }
+    body.fx-taisho .panel{
+      background:rgba(234,198,132,.56);
+      backdrop-filter:blur(1px) sepia(.2);
+      -webkit-backdrop-filter:blur(1px) sepia(.2);
+    }
+    body.fx-flicker{
+      animation:flickerBody .08s steps(2,end) infinite !important;
+    }
+    body.fx-flicker .timeline-overlay{
+      opacity:.62;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.55), transparent 12%, rgba(255,255,255,.42) 18%, transparent 24%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.22) 0 2px, transparent 2px 6px);
+      mix-blend-mode:screen;
+    }
+    @keyframes flickerBody{
+      0%,100%{filter:brightness(.72) contrast(1.25) saturate(1.35)}
+      50%{filter:brightness(2.65) contrast(2.05) saturate(2.2)}
+    }
+
     /* ===== timeline effects ===== */
     body.fx-glitch{
       animation:hardGlitch .12s steps(2,end) infinite !important;
@@ -677,10 +747,9 @@
       animation:redThrob .2s steps(2,end) infinite !important;
     }
     body.fx-red::before{
-      opacity:1;
-      background:url("assets/img/splatter.png") center / cover no-repeat;
+      opacity:.22;
+      background:repeating-linear-gradient(0deg, rgba(255,255,255,.13) 0 1px, transparent 1px 6px);
       mix-blend-mode:screen;
-      filter:contrast(1.25) saturate(1.25) brightness(.92);
     }
     body.fx-red::after{
       opacity:.36;
@@ -709,10 +778,8 @@
     body.fx-taisho{
       color:#2a140b;
       background:
-        radial-gradient(circle at 80% 18%, rgba(172,21,21,.30) 0 82px, transparent 84px),
-        linear-gradient(90deg, rgba(124,58,28,.16) 0 1px, transparent 1px),
-        linear-gradient(180deg,#f0d69b,#c89a60 60%,#3a1f12);
-      background-size:auto, 38px 38px, auto;
+        linear-gradient(180deg, rgba(240,214,155,.78), rgba(58,31,18,.76)),
+        url("assets/img/taisho.png") center / cover no-repeat fixed;
       animation:paperJitter .18s steps(2,end) infinite !important;
     }
     body.fx-taisho::before{
@@ -723,17 +790,11 @@
       mix-blend-mode:multiply;
     }
     body.fx-taisho::after{
-      content:"キノコ商會　大正拾弐年　怪異広告";
-      display:grid;
-      place-items:center;
-      color:rgba(66,20,12,.68);
-      font-family:"Yu Mincho","Hiragino Mincho ProN",serif;
-      font-size:clamp(24px,7vw,88px);
-      font-weight:900;
-      letter-spacing:.12em;
-      writing-mode:vertical-rl;
-      opacity:.42;
-      background:none;
+      content:"";
+      opacity:.12;
+      background:
+        repeating-linear-gradient(90deg, rgba(56,24,9,.20) 0 1px, transparent 1px 34px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.20) 0 1px, transparent 1px 28px);
       mix-blend-mode:multiply;
     }
     @keyframes paperJitter{50%{filter:sepia(.65) contrast(1.2)}}
@@ -837,6 +898,7 @@
 <body>
   <div class="flash" id="flash" aria-hidden="true"></div>
   <div class="timeline-overlay" id="timelineOverlay" aria-hidden="true"></div>
+  <div class="effect-backdrop" id="effectBackdrop" aria-hidden="true"></div>
 
   <div class="mushroom-field" aria-hidden="true">
     <span class="mush m1"><i class="eye l"></i><i class="eye r"></i><i class="mouth"></i></span>
@@ -910,6 +972,7 @@
       const panicBtn = document.getElementById("panicBtn");
       const flash = document.getElementById("flash");
       const timelineOverlay = document.getElementById("timelineOverlay");
+      const effectBackdrop = document.getElementById("effectBackdrop");
       const warningLog = document.getElementById("warningLog");
       const marqueeText = document.getElementById("marqueeText");
       const glitchTargets = Array.from(document.querySelectorAll(".glitch-text"));
@@ -932,6 +995,7 @@
         "assets/img/splatter.png",
         "assets/img/eye.png",
         "assets/img/optical-illusion.png",
+        "assets/img/taisho.png",
         ...MUSHROOM_RAIN_IMAGES
       ]);
       const logLines = [
@@ -948,12 +1012,14 @@
       const effectClasses = [
         "fx-psy",
         "fx-blackout",
+        "fx-bg-black",
         "fx-black-noise",
         "fx-red",
         "fx-eyes",
         "fx-taisho",
         "fx-optical",
-        "fx-wave"
+        "fx-wave",
+        "fx-flicker"
       ];
 
       let glitchRate = 0.08;
@@ -966,21 +1032,35 @@
       let fired = new Set();
       let rainTimer = null;
       let activeBackgroundTimer = null;
+      let activeBackgroundKey = "";
+      let lastTimelineTime = 0;
+      let rainActive = false;
+      const activeTimedClasses = new Set();
 
       const timelineEvents = [
         { time: 9, id: "glitch-009", action: () => triggerGlitch(620, "0:09 GLITCH") },
         { time: 18, id: "invert-018", action: () => triggerInvert(900, "0:18 INVERT") },
-        { time: 28, id: "psy-028", action: () => setBackgroundEffect("fx-psy", 3000, "0:28 PSYCHEDELIC") },
-        { time: 41, id: "black-041", action: () => setBackgroundEffect("fx-blackout", 1000, "0:41 BLACKOUT") },
-        { time: 54, id: "black-054", action: () => setBackgroundEffect("fx-blackout", 1000, "0:54 BLACKOUT") },
-        { time: 56, id: "glitch-056", action: () => triggerGlitch(700, "0:56 GLITCH") },
-        { time: 66, id: "red-106", action: () => setBackgroundEffect("fx-red", 4000, "1:06 RED SPLATTER") },
-        { time: 72, id: "eyes-112", action: () => setBackgroundEffect("fx-eyes", 3000, "1:12 EYES") },
-        { time: 84, id: "taisho-124", action: () => setBackgroundEffect("fx-taisho", 2000, "1:24 TAISHO AD") },
-        { time: 86, id: "optical-126", action: () => setBackgroundEffect("fx-optical", null, "1:26 OPTICAL") },
-        { time: 94, id: "rain-134", action: () => startMushroomRain("1:34 MUSHROOM RAIN") },
-        { time: 95, id: "rainstop-135", action: () => { stopMushroomRain(); setBackgroundEffect("fx-black-noise", null, "1:35 BLACK NOISE"); } },
-        { time: 107, id: "wave-147", action: () => { stopMushroomRain(); setBackgroundEffect("fx-wave", 5000, "1:47 WAVEFORM"); } }
+        { time: 56, id: "glitch-056", action: () => triggerGlitch(700, "0:56 GLITCH") }
+      ];
+
+      const timelineBackgrounds = [
+        { start: 28, end: 30.5, key: "psy-028", className: "fx-psy", label: "0:28 PSYCHEDELIC" },
+        { start: 41, end: 42, key: "black-041", className: "fx-blackout", label: "0:41 BLACKOUT" },
+        { start: 55, end: 56, key: "bgblack-055", className: "fx-bg-black", label: "0:55 BACKGROUND BLACK" },
+        { start: 66, end: 70, key: "red-106", className: "fx-red", label: "1:06 RED SPLATTER" },
+        { start: 72, end: 75, key: "eyes-112", className: "fx-eyes", label: "1:12 EYES" },
+        { start: 84, end: 86, key: "taisho-124", className: "fx-taisho", label: "1:24 TAISHO AD" },
+        { start: 86, end: 95, key: "optical-126", className: "fx-optical", label: "1:26 OPTICAL" },
+        { start: 95, end: 107, key: "black-noise-135", className: "fx-black-noise", label: "1:35 BLACK NOISE" },
+        { start: 107, end: 112, key: "wave-147", className: "fx-wave", label: "1:47 WAVEFORM" }
+      ];
+
+      const timelineClassWindows = [
+        { start: 32, end: 35, key: "flicker-032", className: "fx-flicker", label: "0:32 FLICKER" }
+      ];
+
+      const timelineRainWindows = [
+        { start: 94, end: 95, key: "rain-134", label: "1:34 MUSHROOM RAIN" }
       ];
 
       function randomChar() {
@@ -1064,28 +1144,50 @@
 
       function buildEyeLayer() {
         eyeLayer.innerHTML = "";
-        for (let i = 0; i < 46; i++) {
-          const eye = document.createElement("span");
-          eye.className = "eye-symbol";
-          eye.style.left = `${Math.random() * 100}%`;
-          eye.style.top = `${Math.random() * 100}%`;
-          eye.style.animationDelay = `${Math.random() * 1.5}s`;
-          eye.style.setProperty("--eye-size", `${46 + Math.random() * 112}px`);
+        const count = 54;
+        const clusters = [
+          { x: 8, y: 18 }, { x: 28, y: 72 }, { x: 48, y: 36 },
+          { x: 72, y: 22 }, { x: 84, y: 76 }, { x: 18, y: 48 }
+        ];
+        for (let i = 0; i < count; i++) {
+          const eye = document.createElement("img");
+          eye.className = "eye-img";
+          eye.src = "assets/img/eye.png";
+          eye.alt = "";
+          eye.decoding = "async";
+
+          const cluster = Math.random() < 0.58
+            ? clusters[Math.floor(Math.random() * clusters.length)]
+            : { x: Math.random() * 100, y: Math.random() * 100 };
+          const x = Math.max(-8, Math.min(104, cluster.x + (Math.random() - 0.5) * 28));
+          const y = Math.max(-8, Math.min(104, cluster.y + (Math.random() - 0.5) * 26));
+          const size = 28 + Math.pow(Math.random(), 1.9) * 150;
+
+          eye.style.left = `${x}%`;
+          eye.style.top = `${y}%`;
+          eye.style.setProperty("--eye-size", `${size}px`);
+          eye.style.setProperty("--eye-opacity", `${0.36 + Math.random() * 0.55}`);
+          eye.style.setProperty("--eye-speed", `${0.8 + Math.random() * 2.4}s`);
           eye.style.rotate = `${Math.random() * 360}deg`;
+          eye.style.zIndex = String(Math.floor(size));
+          eye.style.animationDelay = `${Math.random() * 1.8}s`;
           eyeLayer.appendChild(eye);
         }
       }
 
-      function clearBackgroundEffects() {
+      function clearBackgroundEffects(resetKey = true) {
         document.body.classList.remove(...effectClasses);
+        eyeLayer.innerHTML = "";
         if (activeBackgroundTimer) {
           clearTimeout(activeBackgroundTimer);
           activeBackgroundTimer = null;
         }
+        if (resetKey) activeBackgroundKey = "";
       }
 
       function setBackgroundEffect(className, durationMs = null, label = "") {
-        clearBackgroundEffects();
+        clearBackgroundEffects(false);
+        activeBackgroundKey = label || className;
         document.body.classList.add(className);
         writeLog(label);
         if (className === "fx-eyes") buildEyeLayer();
@@ -1093,6 +1195,7 @@
           activeBackgroundTimer = setTimeout(() => {
             document.body.classList.remove(className);
             activeBackgroundTimer = null;
+            activeBackgroundKey = "";
           }, durationMs);
         }
       }
@@ -1129,9 +1232,13 @@
       }
 
       function startMushroomRain(label = "MUSHROOM RAIN") {
+        if (rainActive) return;
+        rainActive = true;
         writeLog(label);
         for (let i = 0; i < 90; i++) {
-          setTimeout(spawnFallingMushroom, i * 8);
+          setTimeout(() => {
+            if (rainActive) spawnFallingMushroom();
+          }, i * 8);
         }
         if (rainTimer) clearInterval(rainTimer);
         rainTimer = setInterval(() => {
@@ -1139,20 +1246,26 @@
         }, 90);
       }
 
-      function stopMushroomRain() {
+      function stopMushroomRain(label = "MUSHROOM RAIN STOP") {
+        const wasActive = rainActive || Boolean(rainTimer);
+        rainActive = false;
         if (rainTimer) {
           clearInterval(rainTimer);
           rainTimer = null;
         }
-        writeLog("MUSHROOM RAIN STOP");
+        if (wasActive) writeLog(label);
       }
 
       function resetTimelineForReplay() {
         fired = new Set();
         clearBackgroundEffects();
+        activeTimedClasses.forEach((className) => document.body.classList.remove(className));
+        activeTimedClasses.clear();
         stopMushroomRain();
         rainLayer.innerHTML = "";
         glitchRate = 0.18;
+        activeBackgroundKey = "";
+        lastTimelineTime = 0;
       }
 
       function preloadTimelineImages() {
@@ -1178,11 +1291,65 @@
       function endToCorruptedIdle() {
         stopMushroomRain();
         clearBackgroundEffects();
+        activeTimedClasses.forEach((className) => document.body.classList.remove(className));
+        activeTimedClasses.clear();
         rainLayer.innerHTML = "";
         document.body.classList.add("corrupted");
         glitchRate = 0.22;
         writeLog("[END] 狂気版通常状態へ復帰しました");
         document.title = "ドコノコノキノコ.exe";
+      }
+
+
+
+      function getActiveBackground(now) {
+        return timelineBackgrounds.find((item) => now >= item.start && now < item.end) || null;
+      }
+
+      function syncBackgroundByTime(now) {
+        const current = getActiveBackground(now);
+        const nextKey = current ? current.key : "";
+        if (activeBackgroundKey === nextKey) return;
+
+        clearBackgroundEffects(false);
+        activeBackgroundKey = nextKey;
+
+        if (!current) return;
+        document.body.classList.add(current.className);
+        if (current.className === "fx-eyes") buildEyeLayer();
+        writeLog(current.label);
+      }
+
+      function syncClassWindows(now) {
+        for (const item of timelineClassWindows) {
+          const shouldBeActive = now >= item.start && now < item.end;
+          const isActive = activeTimedClasses.has(item.className);
+          if (shouldBeActive && !isActive) {
+            document.body.classList.add(item.className);
+            activeTimedClasses.add(item.className);
+            writeLog(item.label);
+          } else if (!shouldBeActive && isActive) {
+            document.body.classList.remove(item.className);
+            activeTimedClasses.delete(item.className);
+          }
+        }
+      }
+
+      function syncRainByTime(now) {
+        const rainWindow = timelineRainWindows.find((item) => now >= item.start && now < item.end);
+        if (rainWindow) {
+          startMushroomRain(rainWindow.label);
+        } else if (rainActive) {
+          stopMushroomRain();
+        }
+      }
+
+      function resetOneShotEventsAfter(time) {
+        for (const event of timelineEvents) {
+          if (event.time >= time - 0.35) {
+            fired.delete(event.id);
+          }
+        }
       }
 
       function checkTimeline() {
@@ -1192,6 +1359,18 @@
         if (now < 1 && fired.size > 0) {
           resetTimelineForReplay();
         }
+
+        if (lastTimelineTime && now + 0.45 < lastTimelineTime) {
+          resetOneShotEventsAfter(now);
+          syncBackgroundByTime(now);
+          syncClassWindows(now);
+          syncRainByTime(now);
+        }
+        lastTimelineTime = now;
+
+        syncBackgroundByTime(now);
+        syncClassWindows(now);
+        syncRainByTime(now);
 
         for (const event of timelineEvents) {
           if (now >= event.time && !fired.has(event.id)) {
