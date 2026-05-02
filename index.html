@@ -1071,6 +1071,37 @@
       height:100%;
       display:block;
     }
+
+    .runner-layer{
+      position:fixed;
+      left:10px;
+      top:10px;
+      width:min(24vw,340px);
+      height:auto;
+      z-index:93;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .16s linear, filter .16s linear, transform .16s linear;
+      contain:layout paint;
+      filter:drop-shadow(0 0 22px rgba(0,80,255,.28)) drop-shadow(0 0 18px rgba(255,255,255,.10));
+    }
+    .runner-layer.active{
+      opacity:.94;
+      animation:runnerScreenJitter .26s steps(2,end) infinite;
+    }
+    .runner-layer img{
+      display:block;
+      width:100%;
+      height:auto;
+      user-select:none;
+      -webkit-user-drag:none;
+      image-rendering:auto;
+    }
+    @keyframes runnerScreenJitter{
+      0%,100%{transform:translate(0,0) scale(1)}
+      50%{transform:translate(2px,-1px) scale(1.015)}
+    }
+
     .donald-layer{
       top:0;
       right:0;
@@ -1107,12 +1138,14 @@
     @media (max-width:860px){
       .cross-layer{padding:8px 8px 48px; gap:1px;}
       .donald-layer{width:min(55vw,520px); opacity:0;}
+      .runner-layer{width:min(32vw,250px);}
       .donald-layer.active{opacity:.68;}
       .starmie-layer{width:min(36vw,230px); height:min(28vh,230px); right:10px; bottom:44px;}
     }
     @media (max-width:560px){
       .cross-layer{padding:6px 6px 44px; gap:1px;}
       .donald-layer{width:65vw; bottom:36px;}
+      .runner-layer{width:min(38vw,170px);}
       .donald-layer.active{opacity:.52;}
       .starmie-layer{width:34vw; height:34vw; right:8px; bottom:42px;}
     }
@@ -1198,6 +1231,9 @@
     <video id="starmieVideo" src="assets/video/starmie-awadance-gb.mp4" muted loop playsinline preload="auto"></video>
     <canvas id="starmieCanvas"></canvas>
   </div>
+  <div class="runner-layer" id="runnerLayer" aria-hidden="true">
+    <img id="runnerImage" src="assets/img/runner-bluekey.png" alt="">
+  </div>
   <div class="warning-log" id="warningLog">[KINOCO_SYS] かわいい きのこ を 読み込み中...</div>
 
   <main class="stage">
@@ -1253,6 +1289,7 @@
 
       const MAIN_VIDEO_ID = "NYnpsWrVGKg";
       const TAB_STORM_IMAGE = "assets/img/393.png";
+      const RUNNER_IMAGE = "assets/img/runner-bluekey.png";
       const coverThumb = document.getElementById("coverThumb");
       const thumbOverlay = document.getElementById("thumbOverlay");
       const videoShell = document.getElementById("videoShell");
@@ -1277,6 +1314,7 @@
       const starmieLayer = document.getElementById("starmieLayer");
       const starmieVideo = document.getElementById("starmieVideo");
       const starmieCanvas = document.getElementById("starmieCanvas");
+      const runnerLayer = document.getElementById("runnerLayer");
 
       const corruptChars = "縺繧譁荳蜑笘繝蟆隧髫莠邱驥謗蜿譛螟蟄莨譛�▒▓█░ﾄﾞｺﾉｷﾉｺ";
       const MUSHROOM_RAIN_IMAGES = Object.freeze([
@@ -1300,6 +1338,7 @@
         "assets/img/taisho.png",
         "assets/img/colorbar.jpg",
         TAB_STORM_IMAGE,
+        RUNNER_IMAGE,
         ...MUSHROOM_RAIN_IMAGES
       ]);
       const logLines = [
@@ -1348,6 +1387,7 @@
       let tabStormActive = false;
       let tabStormTimer = null;
       let crossLayerCount = -1;
+      let runnerActive = false;
       const activeTimedClasses = new Set();
 
       const timelineEvents = [
@@ -1393,6 +1433,12 @@
         { start: 88, end: 112, id: "donald", className: "fx-chroma-donald", label: "1:28 DONALD BLUEBACK LOOP" },
         { start: 93, end: 112, id: "starmie", className: "fx-chroma-starmie", label: "1:33 MEGA STARMIE GREENBACK LOOP" }
       ];
+
+      const timelineRunnerWindow = {
+        start: 98,
+        end: 112,
+        label: "1:38 BLUEBACK RUNNER"
+      };
 
       function randomChar() {
         return corruptChars.charAt(Math.floor(Math.random() * corruptChars.length));
@@ -1618,7 +1664,53 @@
       function updateProtectedVisualZones() {
         updateMosaicMask();
         updateChromaSafeLayout();
+        updateRunnerSafeLayout();
       }
+
+      function updateRunnerSafeLayout() {
+        if (!runnerLayer) return;
+        const safe = getVideoSafeRect(14);
+        const viewportWidth = safe.viewportWidth;
+        const viewportHeight = safe.viewportHeight;
+        const margin = Math.max(8, Math.min(16, viewportWidth * 0.025));
+        const bottomGuard = 42;
+        const desiredWidth = Math.min(340, Math.max(120, viewportWidth * (viewportWidth < 560 ? 0.34 : 0.22)));
+        const desiredHeight = desiredWidth * 0.5625;
+
+        let width = desiredWidth;
+        let left = margin;
+        let top = Math.max(margin, safe.top);
+
+        const leftSpace = safe.left - margin * 2;
+        const bottomSpace = viewportHeight - safe.bottom - bottomGuard - margin;
+        const topSpace = safe.top - margin * 2;
+
+        if (leftSpace >= width * 0.78) {
+          width = Math.min(width, leftSpace);
+          left = margin;
+          top = Math.min(
+            Math.max(margin, safe.top + (safe.bottom - safe.top) * 0.58),
+            viewportHeight - desiredHeight - bottomGuard
+          );
+        } else if (bottomSpace >= desiredHeight * 0.74) {
+          left = margin;
+          top = Math.min(safe.bottom + margin, viewportHeight - desiredHeight - bottomGuard);
+        } else if (topSpace >= desiredHeight * 0.70) {
+          left = margin;
+          top = margin;
+        } else {
+          width = Math.min(width, Math.max(96, viewportWidth * 0.28));
+          left = margin;
+          top = Math.max(margin, viewportHeight - width * 0.5625 - bottomGuard);
+        }
+
+        runnerLayer.style.width = `${Math.round(width)}px`;
+        runnerLayer.style.left = `${Math.round(left)}px`;
+        runnerLayer.style.top = `${Math.round(top)}px`;
+        runnerLayer.style.right = "auto";
+        runnerLayer.style.bottom = "auto";
+      }
+
 
       function weightedChoice(zones) {
         const total = zones.reduce((sum, zone) => sum + zone.area, 0);
@@ -2012,6 +2104,30 @@
         }
       }
 
+
+      function startRunnerLayer(label) {
+        if (!runnerLayer || runnerActive) return;
+        updateRunnerSafeLayout();
+        runnerActive = true;
+        runnerLayer.classList.add("active");
+        writeLog(label);
+      }
+
+      function stopRunnerLayer() {
+        if (!runnerLayer || !runnerActive) return;
+        runnerActive = false;
+        runnerLayer.classList.remove("active");
+      }
+
+      function syncRunnerByTime(now) {
+        const shouldBeActive = now >= timelineRunnerWindow.start && now < timelineRunnerWindow.end;
+        if (shouldBeActive) {
+          startRunnerLayer(timelineRunnerWindow.label);
+        } else {
+          stopRunnerLayer();
+        }
+      }
+
       function resetTimelineForReplay() {
         fired = new Set();
         clearBackgroundEffects();
@@ -2020,6 +2136,7 @@
         stopMushroomRain();
         stopTabStorm();
         stopAllChromaActors();
+        stopRunnerLayer();
         rainLayer.innerHTML = "";
         if (tabStormLayer) tabStormLayer.innerHTML = "";
         if (crossLayer) crossLayer.replaceChildren();
@@ -2060,6 +2177,7 @@
         stopMushroomRain();
         stopTabStorm();
         stopAllChromaActors();
+        stopRunnerLayer();
         clearBackgroundEffects();
         activeTimedClasses.forEach((className) => document.body.classList.remove(className));
         activeTimedClasses.clear();
@@ -2153,6 +2271,7 @@
           syncTabStormByTime(now);
           syncCrossLayerByTime(now);
           syncChromaByTime(now);
+          syncRunnerByTime(now);
         }
         lastTimelineTime = now;
 
