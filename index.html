@@ -84,6 +84,7 @@
     .mushroom-field,
     .rain-layer,
     .eye-layer,
+    .tab-storm-layer,
     .mojibake-layer{
       position:fixed;
       inset:0;
@@ -93,6 +94,8 @@
     .mushroom-field{z-index:0}
     .rain-layer{z-index:7}
     .eye-layer{z-index:2; opacity:0; transition:opacity .12s linear}
+    .tab-storm-layer{z-index:96; opacity:0; transition:opacity .08s linear}
+    .tab-storm-layer.active{opacity:1}
     .mojibake-layer{z-index:3; opacity:0; transition:opacity .2s linear}
 
     .mush{
@@ -648,6 +651,79 @@
       50%{filter:brightness(2.65) contrast(2.05) saturate(2.2)}
     }
 
+    .virus-tab{
+      position:absolute;
+      width:var(--tab-w, 190px);
+      min-width:120px;
+      border:2px solid rgba(38,38,38,.95);
+      border-radius:8px 8px 4px 4px;
+      background:linear-gradient(180deg,#f7f7f7,#cfcfcf 28px,#ffffff 29px);
+      box-shadow:8px 10px 0 rgba(0,0,0,.38), 0 0 26px rgba(255,16,56,.22);
+      overflow:hidden;
+      transform:translate(-50%,-50%) rotate(var(--tab-rot, 0deg)) scale(var(--tab-scale, 1));
+      animation:tabPop var(--tab-life, 1.15s) steps(2,end) forwards;
+      pointer-events:none;
+    }
+    .virus-tab::before{
+      content:"C:\\KINOCO\\SYSTEM32\\393.PNG";
+      display:block;
+      height:24px;
+      padding:4px 26px 0 8px;
+      background:linear-gradient(90deg,#d9e9ff,#f3f3f3);
+      color:#171717;
+      font:700 10px/1.3 "MS Gothic",monospace;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      border-bottom:1px solid #9b9b9b;
+    }
+    .virus-tab::after{
+      content:"×";
+      position:absolute;
+      top:3px;
+      right:5px;
+      width:16px;
+      height:16px;
+      display:grid;
+      place-items:center;
+      background:#d40000;
+      color:#fff;
+      border-radius:2px;
+      font:900 12px/1 system-ui,sans-serif;
+    }
+    .virus-tab img{
+      display:block;
+      width:100%;
+      height:auto;
+      background:#fff;
+      filter:contrast(1.06) saturate(1.12);
+      user-select:none;
+      -webkit-user-drag:none;
+    }
+    @keyframes tabPop{
+      0%{opacity:0; transform:translate(-50%,-50%) rotate(var(--tab-rot, 0deg)) scale(.08)}
+      10%{opacity:1; transform:translate(-50%,-50%) rotate(calc(var(--tab-rot, 0deg) * -1)) scale(1.08)}
+      64%{opacity:1; transform:translate(-50%,-50%) rotate(var(--tab-rot, 0deg)) scale(var(--tab-scale, 1))}
+      100%{opacity:0; transform:translate(-50%,-50%) rotate(var(--tab-rot, 0deg)) scale(.82) translateY(16px)}
+    }
+
+    body.fx-text-void .mojibake-layer,
+    body.fx-text-void .warning-log,
+    body.fx-text-void .marquee,
+    body.fx-text-void .glitch-text{
+      opacity:0 !important;
+      visibility:hidden !important;
+    }
+    body.fx-text-void .panel::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 7px);
+      pointer-events:none;
+      mix-blend-mode:screen;
+    }
+
+
     /* ===== timeline effects ===== */
     body.fx-glitch{
       animation:hardGlitch .12s steps(2,end) infinite !important;
@@ -911,6 +987,7 @@
   <div class="mojibake-layer" id="mojibakeLayer" aria-hidden="true"></div>
   <div class="rain-layer" id="rainLayer" aria-hidden="true"></div>
   <div class="eye-layer" id="eyeLayer" aria-hidden="true"></div>
+  <div class="tab-storm-layer" id="tabStormLayer" aria-hidden="true"></div>
   <div class="warning-log" id="warningLog">[KINOCO_SYS] かわいい きのこ を 読み込み中...</div>
 
   <main class="stage">
@@ -965,6 +1042,7 @@
       "use strict";
 
       const MAIN_VIDEO_ID = "NYnpsWrVGKg";
+      const TAB_STORM_IMAGE = "assets/img/393.png";
       const coverThumb = document.getElementById("coverThumb");
       const thumbOverlay = document.getElementById("thumbOverlay");
       const videoShell = document.getElementById("videoShell");
@@ -979,6 +1057,7 @@
       const mojibakeLayer = document.getElementById("mojibakeLayer");
       const rainLayer = document.getElementById("rainLayer");
       const eyeLayer = document.getElementById("eyeLayer");
+      const tabStormLayer = document.getElementById("tabStormLayer");
 
       const corruptChars = "縺繧譁荳蜑笘繝蟆隧髫莠邱驥謗蜿譛螟蟄莨譛�▒▓█░ﾄﾞｺﾉｷﾉｺ";
       const MUSHROOM_RAIN_IMAGES = Object.freeze([
@@ -996,6 +1075,7 @@
         "assets/img/eye.png",
         "assets/img/optical-illusion.png",
         "assets/img/taisho.png",
+        TAB_STORM_IMAGE,
         ...MUSHROOM_RAIN_IMAGES
       ]);
       const logLines = [
@@ -1012,7 +1092,7 @@
       const effectClasses = [
         "fx-psy",
         "fx-blackout",
-        "fx-bg-black",
+        "fx-text-void",
         "fx-black-noise",
         "fx-red",
         "fx-eyes",
@@ -1035,6 +1115,8 @@
       let activeBackgroundKey = "";
       let lastTimelineTime = 0;
       let rainActive = false;
+      let tabStormActive = false;
+      let tabStormTimer = null;
       const activeTimedClasses = new Set();
 
       const timelineEvents = [
@@ -1046,7 +1128,6 @@
       const timelineBackgrounds = [
         { start: 28, end: 30.5, key: "psy-028", className: "fx-psy", label: "0:28 PSYCHEDELIC" },
         { start: 41, end: 42, key: "black-041", className: "fx-blackout", label: "0:41 BLACKOUT" },
-        { start: 55, end: 56, key: "bgblack-055", className: "fx-bg-black", label: "0:55 BACKGROUND BLACK" },
         { start: 66, end: 70, key: "red-106", className: "fx-red", label: "1:06 RED SPLATTER" },
         { start: 72, end: 75, key: "eyes-112", className: "fx-eyes", label: "1:12 EYES" },
         { start: 84, end: 86, key: "taisho-124", className: "fx-taisho", label: "1:24 TAISHO AD" },
@@ -1056,11 +1137,16 @@
       ];
 
       const timelineClassWindows = [
-        { start: 32, end: 35, key: "flicker-032", className: "fx-flicker", label: "0:32 FLICKER" }
+        { start: 32, end: 35, key: "flicker-032", className: "fx-flicker", label: "0:32 FLICKER" },
+        { start: 55, end: 56, key: "textvoid-055", className: "fx-text-void", label: "0:55 TEXT VOID" }
       ];
 
       const timelineRainWindows = [
         { start: 94, end: 95, key: "rain-134", label: "1:34 MUSHROOM RAIN" }
+      ];
+
+      const timelineTabStormWindows = [
+        { start: 0, end: 5, key: "tabstorm-000", label: "0:00 VIRUS TAB STORM" }
       ];
 
       function randomChar() {
@@ -1215,6 +1301,59 @@
         document.title = corruptText("ドコノコノキノコ.exe", 0.45);
       }
 
+      function spawnVirusTab() {
+        if (!tabStormLayer) return;
+        const tab = document.createElement("span");
+        tab.className = "virus-tab";
+        const img = document.createElement("img");
+        img.src = TAB_STORM_IMAGE;
+        img.alt = "";
+        img.decoding = "async";
+        tab.appendChild(img);
+
+        const width = 96 + Math.random() * 170;
+        tab.style.left = `${4 + Math.random() * 92}%`;
+        tab.style.top = `${6 + Math.random() * 88}%`;
+        tab.style.setProperty("--tab-w", `${width}px`);
+        tab.style.setProperty("--tab-scale", `${0.78 + Math.random() * 0.72}`);
+        tab.style.setProperty("--tab-rot", `${(Math.random() - 0.5) * 24}deg`);
+        tab.style.setProperty("--tab-life", `${0.86 + Math.random() * 1.35}s`);
+        tab.style.zIndex = String(10 + Math.floor(Math.random() * 900));
+        tabStormLayer.appendChild(tab);
+        setTimeout(() => tab.remove(), 2600);
+      }
+
+      function startTabStorm(label = "VIRUS TAB STORM") {
+        if (tabStormActive) return;
+        tabStormActive = true;
+        tabStormLayer?.classList.add("active");
+        writeLog(label);
+        for (let i = 0; i < 70; i++) {
+          setTimeout(() => {
+            if (tabStormActive) spawnVirusTab();
+          }, i * 18);
+        }
+        if (tabStormTimer) clearInterval(tabStormTimer);
+        tabStormTimer = setInterval(() => {
+          for (let i = 0; i < 8; i++) spawnVirusTab();
+        }, 105);
+      }
+
+      function stopTabStorm(label = "VIRUS TAB STORM STOP") {
+        const wasActive = tabStormActive || Boolean(tabStormTimer);
+        tabStormActive = false;
+        if (tabStormTimer) {
+          clearInterval(tabStormTimer);
+          tabStormTimer = null;
+        }
+        tabStormLayer?.classList.remove("active");
+        if (wasActive) writeLog(label);
+        setTimeout(() => {
+          if (!tabStormActive && tabStormLayer) tabStormLayer.innerHTML = "";
+        }, 1500);
+      }
+
+
       function spawnFallingMushroom() {
         const mush = document.createElement("span");
         mush.className = "falling-mush";
@@ -1262,7 +1401,9 @@
         activeTimedClasses.forEach((className) => document.body.classList.remove(className));
         activeTimedClasses.clear();
         stopMushroomRain();
+        stopTabStorm();
         rainLayer.innerHTML = "";
+        if (tabStormLayer) tabStormLayer.innerHTML = "";
         glitchRate = 0.18;
         activeBackgroundKey = "";
         lastTimelineTime = 0;
@@ -1290,10 +1431,12 @@
 
       function endToCorruptedIdle() {
         stopMushroomRain();
+        stopTabStorm();
         clearBackgroundEffects();
         activeTimedClasses.forEach((className) => document.body.classList.remove(className));
         activeTimedClasses.clear();
         rainLayer.innerHTML = "";
+        if (tabStormLayer) tabStormLayer.innerHTML = "";
         document.body.classList.add("corrupted");
         glitchRate = 0.22;
         writeLog("[END] 狂気版通常状態へ復帰しました");
@@ -1344,6 +1487,16 @@
         }
       }
 
+      function syncTabStormByTime(now) {
+        const stormWindow = timelineTabStormWindows.find((item) => now >= item.start && now < item.end);
+        if (stormWindow) {
+          startTabStorm(stormWindow.label);
+        } else if (tabStormActive) {
+          stopTabStorm();
+        }
+      }
+
+
       function resetOneShotEventsAfter(time) {
         for (const event of timelineEvents) {
           if (event.time >= time - 0.35) {
@@ -1365,12 +1518,14 @@
           syncBackgroundByTime(now);
           syncClassWindows(now);
           syncRainByTime(now);
+          syncTabStormByTime(now);
         }
         lastTimelineTime = now;
 
         syncBackgroundByTime(now);
         syncClassWindows(now);
         syncRainByTime(now);
+        syncTabStormByTime(now);
 
         for (const event of timelineEvents) {
           if (now >= event.time && !fired.has(event.id)) {
