@@ -34,7 +34,7 @@
     html,body{min-height:100%}
     body{
       margin:0;
-      font-family: "Hiragino Maru Gothic ProN","Yu Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;
+      font-family:"Hiragino Maru Gothic ProN","Yu Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;
       color:var(--cute-ink);
       background:
         radial-gradient(circle at 14% 12%, rgba(255,255,255,.92) 0 80px, transparent 82px),
@@ -42,7 +42,7 @@
         radial-gradient(circle at 50% 105%, rgba(255,124,184,.22), transparent 48%),
         linear-gradient(180deg,var(--cute-bg),var(--cute-bg2));
       overflow-x:hidden;
-      transition: background .18s linear, color .18s linear, filter .18s linear;
+      transition:background .18s linear, color .18s linear, filter .18s linear;
     }
 
     body::before,
@@ -52,7 +52,7 @@
       inset:0;
       pointer-events:none;
       z-index:-1;
-      transition:opacity .16s linear;
+      transition:opacity .16s linear, background .16s linear, filter .16s linear;
     }
     body::before{
       background:
@@ -81,13 +81,20 @@
       overflow:hidden;
     }
 
-    .mushroom-field{
+    .mushroom-field,
+    .rain-layer,
+    .eye-layer,
+    .mojibake-layer{
       position:fixed;
       inset:0;
       pointer-events:none;
       overflow:hidden;
-      z-index:0;
     }
+    .mushroom-field{z-index:0}
+    .rain-layer{z-index:7}
+    .eye-layer{z-index:2; opacity:0; transition:opacity .12s linear}
+    .mojibake-layer{z-index:3; opacity:0; transition:opacity .2s linear}
+
     .mush{
       position:absolute;
       width:78px;
@@ -150,7 +157,7 @@
     .panel{
       width:min(1080px,100%);
       position:relative;
-      z-index:2;
+      z-index:4;
       border-radius:32px;
       background:rgba(255,255,255,.78);
       border:5px solid rgba(255,255,255,.78);
@@ -238,7 +245,8 @@
       border:6px solid #fff;
     }
     .thumb-shell img,
-    .thumb-shell iframe{
+    .thumb-shell iframe,
+    #player{
       position:absolute;
       inset:0;
       width:100%;
@@ -324,7 +332,7 @@
       position:fixed;
       left:0; right:0; bottom:0;
       height:36px;
-      z-index:4;
+      z-index:8;
       display:flex;
       align-items:center;
       overflow:hidden;
@@ -341,15 +349,6 @@
     }
     @keyframes marq{to{transform:translateX(-100%)}}
 
-    .mojibake-layer{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      opacity:0;
-      z-index:3;
-      overflow:hidden;
-      transition:opacity .2s linear;
-    }
     .moji{
       position:absolute;
       font-family:"MS Gothic","Yu Gothic Mono",monospace;
@@ -364,12 +363,26 @@
       to{translate:0 115vh}
     }
 
+    .eye-symbol{
+      position:absolute;
+      font-size:clamp(26px,5vw,62px);
+      line-height:1;
+      opacity:.86;
+      filter:drop-shadow(0 0 12px rgba(247,255,233,.45));
+      animation:eyeFloat 1.6s ease-in-out infinite alternate;
+      mix-blend-mode:screen;
+    }
+    @keyframes eyeFloat{
+      from{transform:translateY(-6px) scale(.96)}
+      to{transform:translateY(7px) scale(1.08)}
+    }
+
     .warning-log{
       position:fixed;
       left:14px;
       right:14px;
       bottom:48px;
-      z-index:5;
+      z-index:9;
       display:none;
       max-width:820px;
       margin:auto;
@@ -383,7 +396,7 @@
       box-shadow:0 0 38px rgba(116,255,77,.12);
     }
 
-    /* ===== corrupted state ===== */
+    /* ===== corrupted base ===== */
     body.corrupted{
       color:var(--bad-ink);
       background:
@@ -540,15 +553,220 @@
       pointer-events:none;
       opacity:0;
     }
-    .flash.active{
-      animation:flashBang .58s steps(3,end);
-    }
+    .flash.active{animation:flashBang .58s steps(3,end)}
     @keyframes flashBang{
       0%{opacity:0}
       12%{opacity:1}
       26%{opacity:.15}
       42%{opacity:.9}
       100%{opacity:0}
+    }
+
+    /* ===== timeline effects ===== */
+    body.fx-glitch{
+      animation:hardGlitch .12s steps(2,end) infinite !important;
+    }
+    body.fx-glitch .panel,
+    body.fx-glitch .thumb-shell{
+      filter:contrast(1.9) saturate(1.8) hue-rotate(80deg);
+      transform:translate(-4px,2px) skewX(-1deg);
+    }
+    body.fx-glitch::before{
+      opacity:1;
+      background:
+        linear-gradient(90deg, transparent 0 18%, rgba(255,0,64,.38) 18% 21%, transparent 21% 56%, rgba(0,255,170,.28) 56% 59%, transparent 59%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.16) 0 2px, transparent 2px 6px);
+    }
+    @keyframes hardGlitch{
+      0%,100%{transform:translate(0,0); filter:none}
+      25%{transform:translate(5px,-3px); filter:hue-rotate(90deg) contrast(1.45)}
+      50%{transform:translate(-4px,2px); filter:invert(.18) saturate(2)}
+      75%{transform:translate(2px,4px); filter:hue-rotate(-70deg) contrast(1.6)}
+    }
+
+    body.fx-invert{
+      filter:invert(1) hue-rotate(180deg) contrast(1.6) saturate(1.8);
+    }
+
+    body.fx-psy{
+      background:
+        conic-gradient(from 0deg at 50% 50%, #ff0048, #ffe600, #00ff73, #00b7ff, #8b00ff, #ff0048),
+        repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.24) 0 8px, rgba(0,0,0,.20) 8px 16px);
+      animation:psySpin .26s linear infinite, screenPulse .6s steps(2,end) infinite !important;
+    }
+    body.fx-psy::before{
+      background:repeating-conic-gradient(from 0deg, rgba(255,255,255,.28) 0 10deg, transparent 10deg 18deg);
+      opacity:.88;
+      mix-blend-mode:overlay;
+      animation:psyZoom .33s ease-in-out infinite alternate;
+    }
+    @keyframes psySpin{to{filter:hue-rotate(360deg) saturate(2.5) contrast(1.4)}}
+    @keyframes psyZoom{from{transform:scale(1)} to{transform:scale(1.08) rotate(3deg)}}
+
+    body.fx-blackout{
+      background:#000 !important;
+      color:#050505;
+      animation:none !important;
+    }
+    body.fx-blackout::before,
+    body.fx-blackout::after{
+      opacity:0 !important;
+    }
+    body.fx-blackout .panel,
+    body.fx-blackout .mushroom-field,
+    body.fx-blackout .marquee{
+      opacity:.02;
+      filter:brightness(.06);
+    }
+
+    body.fx-black-noise{
+      background:#000 !important;
+      animation:none !important;
+    }
+    body.fx-black-noise::before{
+      opacity:.82;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.10) 0 1px, transparent 1px 5px),
+        linear-gradient(90deg, transparent 0 12%, rgba(116,255,77,.16) 12% 13%, transparent 13% 58%, rgba(255,16,56,.20) 58% 59%, transparent 59%);
+      animation:noiseRun .75s steps(3,end) infinite;
+    }
+    body.fx-black-noise::after{
+      opacity:.20;
+      background:repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.35) 0 1px, transparent 1px 4px);
+      background-size:120px 90px;
+      mix-blend-mode:screen;
+    }
+    @keyframes noiseRun{
+      0%,100%{transform:translate(0,0); filter:contrast(1)}
+      33%{transform:translate(18px,-10px); filter:contrast(3)}
+      66%{transform:translate(-12px,7px); filter:contrast(1.5)}
+    }
+
+    body.fx-red{
+      background:
+        radial-gradient(circle at 12% 18%, rgba(255,255,255,.12) 0 28px, transparent 29px),
+        radial-gradient(circle at 25% 62%, rgba(255,0,45,.62) 0 54px, transparent 55px),
+        radial-gradient(circle at 80% 28%, rgba(255,0,45,.54) 0 72px, transparent 73px),
+        radial-gradient(circle at 55% 92%, rgba(255,0,45,.62) 0 120px, transparent 121px),
+        linear-gradient(180deg,#140005,#020202);
+      animation:redThrob .2s steps(2,end) infinite !important;
+    }
+    body.fx-red::before{
+      opacity:.92;
+      background:
+        repeating-linear-gradient(115deg, rgba(255,16,56,.32) 0 12px, transparent 12px 26px),
+        radial-gradient(circle at 40% 40%, rgba(255,16,56,.42), transparent 22%);
+      mix-blend-mode:screen;
+    }
+    @keyframes redThrob{
+      0%,100%{filter:saturate(1.3) contrast(1.1)}
+      50%{filter:saturate(2.3) contrast(1.5) brightness(.82)}
+    }
+
+    body.fx-eyes .eye-layer{
+      opacity:1;
+    }
+    body.fx-eyes{
+      background:
+        radial-gradient(circle at 18% 20%, rgba(247,255,233,.20), transparent 11%),
+        radial-gradient(circle at 72% 28%, rgba(247,255,233,.20), transparent 13%),
+        radial-gradient(circle at 46% 74%, rgba(247,255,233,.18), transparent 14%),
+        linear-gradient(180deg,#010101,#180309);
+    }
+
+    body.fx-taisho{
+      color:#2a140b;
+      background:
+        radial-gradient(circle at 80% 18%, rgba(172,21,21,.30) 0 82px, transparent 84px),
+        linear-gradient(90deg, rgba(124,58,28,.16) 0 1px, transparent 1px),
+        linear-gradient(180deg,#f0d69b,#c89a60 60%,#3a1f12);
+      background-size:auto, 38px 38px, auto;
+      animation:paperJitter .18s steps(2,end) infinite !important;
+    }
+    body.fx-taisho::before{
+      opacity:.82;
+      background:
+        repeating-linear-gradient(90deg, rgba(73,31,15,.16) 0 14px, transparent 14px 30px),
+        radial-gradient(circle at 20% 30%, rgba(125,0,0,.20), transparent 20%);
+      mix-blend-mode:multiply;
+    }
+    body.fx-taisho::after{
+      content:"キノコ商會　大正拾弐年　怪異広告";
+      display:grid;
+      place-items:center;
+      color:rgba(66,20,12,.68);
+      font-family:"Yu Mincho","Hiragino Mincho ProN",serif;
+      font-size:clamp(24px,7vw,88px);
+      font-weight:900;
+      letter-spacing:.12em;
+      writing-mode:vertical-rl;
+      opacity:.42;
+      background:none;
+      mix-blend-mode:multiply;
+    }
+    @keyframes paperJitter{50%{filter:sepia(.65) contrast(1.2)}}
+
+    body.fx-optical{
+      background:
+        repeating-conic-gradient(from 0deg at 50% 50%, #000 0 10deg, #fff 10deg 20deg),
+        repeating-radial-gradient(circle at 50% 50%, rgba(116,255,77,.38) 0 8px, transparent 8px 16px);
+      background-blend-mode:difference;
+      animation:opticalSpin .9s linear infinite !important;
+    }
+    body.fx-optical::before{
+      opacity:.55;
+      background:repeating-linear-gradient(45deg, rgba(255,16,56,.18) 0 8px, rgba(116,255,77,.18) 8px 16px);
+      mix-blend-mode:difference;
+    }
+    @keyframes opticalSpin{
+      to{filter:hue-rotate(360deg) contrast(1.6)}
+    }
+
+    body.fx-wave{
+      background:#020202;
+      animation:waveBoom .24s ease-in-out infinite !important;
+    }
+    body.fx-wave::before{
+      opacity:.95;
+      background:
+        repeating-radial-gradient(ellipse at 50% 50%, rgba(116,255,77,.0) 0 18px, rgba(116,255,77,.45) 19px 23px, transparent 24px 34px),
+        repeating-linear-gradient(90deg, rgba(255,16,56,.10) 0 1px, transparent 1px 14px);
+      animation:wavePulse .32s ease-in-out infinite;
+      mix-blend-mode:screen;
+    }
+    body.fx-wave::after{
+      opacity:.72;
+      background:
+        linear-gradient(90deg, transparent 0 7%, rgba(255,255,255,.35) 8% 9%, transparent 10% 22%, rgba(255,255,255,.22) 23% 24%, transparent 25%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.10) 0 2px, transparent 2px 8px);
+      animation:waveSlide .16s linear infinite;
+      mix-blend-mode:screen;
+    }
+    @keyframes waveBoom{
+      0%,100%{filter:brightness(.8) contrast(1.1)}
+      50%{filter:brightness(1.8) contrast(2)}
+    }
+    @keyframes wavePulse{
+      from{transform:scale(.82)}
+      to{transform:scale(1.28)}
+    }
+    @keyframes waveSlide{
+      to{transform:translateX(36px)}
+    }
+
+    .falling-mush{
+      position:absolute;
+      top:-90px;
+      width:42px;
+      height:52px;
+      font-size:42px;
+      line-height:1;
+      filter:drop-shadow(0 0 12px rgba(116,255,77,.45));
+      animation:mushFall var(--fall-duration, 2.8s) linear forwards;
+      opacity:.95;
+    }
+    @keyframes mushFall{
+      to{transform:translateY(120vh) rotate(var(--rot, 360deg))}
     }
 
     @media (max-width:860px){
@@ -569,7 +787,7 @@
       .warning-log{font-size:12px;bottom:42px}
     }
 
-    @media (prefers-reduced-motion: reduce){
+    @media (prefers-reduced-motion:reduce){
       *,*::before,*::after{animation:none !important; transition:none !important; scroll-behavior:auto !important}
       body.corrupted{filter:none}
       body.corrupted .mojibake-layer{opacity:.45}
@@ -589,6 +807,8 @@
   </div>
 
   <div class="mojibake-layer" id="mojibakeLayer" aria-hidden="true"></div>
+  <div class="rain-layer" id="rainLayer" aria-hidden="true"></div>
+  <div class="eye-layer" id="eyeLayer" aria-hidden="true"></div>
   <div class="warning-log" id="warningLog">[KINOCO_SYS] かわいい きのこ を 読み込み中...</div>
 
   <main class="stage">
@@ -653,6 +873,8 @@
       const marqueeText = document.getElementById("marqueeText");
       const glitchTargets = Array.from(document.querySelectorAll(".glitch-text"));
       const mojibakeLayer = document.getElementById("mojibakeLayer");
+      const rainLayer = document.getElementById("rainLayer");
+      const eyeLayer = document.getElementById("eyeLayer");
 
       const corruptChars = "縺繧譁荳蜑笘繝蟆隧髫莠邱驥謗蜿譛螟蟄莨譛�▒▓█░ﾄﾞｺﾉｷﾉｺ";
       const logLines = [
@@ -662,106 +884,329 @@
         "[SPORE] 胞子密度: 122%",
         "[FACE_MESH] 口角検出に失敗しました",
         "[MEME_CORE] 文字化けを連続生成中...",
-        "[KINOCO] ドコノコノキノコ ドコノコノキノコ",
-        "[WARNING] かわいい の 定義 が 破損 しました"
+        "[KINOCO] ドコノコノキノコ ドコノコノキノｺ 縺薙?",
+        "[WARNING] かわいい と こわい の境界が見つかりません"
       ];
-      let corrupted = false;
-      let corruptionRate = 0.04;
-      let logIndex = 0;
-      let scrambleTimer = null;
+
+      const effectClasses = [
+        "fx-psy",
+        "fx-blackout",
+        "fx-black-noise",
+        "fx-red",
+        "fx-eyes",
+        "fx-taisho",
+        "fx-optical",
+        "fx-wave"
+      ];
+
+      let glitchRate = 0.08;
+      let mojibakeTimer = null;
       let logTimer = null;
+      let timelineTimer = null;
+      let player = null;
+      let playerReady = false;
+      let timelineStarted = false;
+      let fired = new Set();
+      let rainTimer = null;
+      let activeBackgroundTimer = null;
 
-      function randomOf(str) {
-        return str[Math.floor(Math.random() * str.length)];
+      const timelineEvents = [
+        { time: 9, id: "glitch-009", action: () => triggerGlitch(620, "0:09 GLITCH") },
+        { time: 18, id: "invert-018", action: () => temporaryBodyClass("fx-invert", 520, "0:18 INVERT") },
+        { time: 28, id: "psy-028", action: () => setBackgroundEffect("fx-psy", 3000, "0:28 PSYCHEDELIC") },
+        { time: 41, id: "black-041", action: () => setBackgroundEffect("fx-blackout", 1000, "0:41 BLACKOUT") },
+        { time: 54, id: "black-054", action: () => setBackgroundEffect("fx-blackout", 1000, "0:54 BLACKOUT") },
+        { time: 56, id: "glitch-056", action: () => triggerGlitch(700, "0:56 GLITCH") },
+        { time: 66, id: "red-106", action: () => setBackgroundEffect("fx-red", 4000, "1:06 RED SPLATTER") },
+        { time: 72, id: "eyes-112", action: () => setBackgroundEffect("fx-eyes", 3000, "1:12 EYES") },
+        { time: 84, id: "taisho-124", action: () => setBackgroundEffect("fx-taisho", 2000, "1:24 TAISHO AD") },
+        { time: 86, id: "optical-126", action: () => setBackgroundEffect("fx-optical", null, "1:26 OPTICAL") },
+        { time: 94, id: "rain-134", action: () => startMushroomRain("1:34 MUSHROOM RAIN") },
+        { time: 95, id: "rainstop-135", action: () => { stopMushroomRain(); setBackgroundEffect("fx-black-noise", null, "1:35 BLACK NOISE"); } },
+        { time: 107, id: "wave-147", action: () => { stopMushroomRain(); setBackgroundEffect("fx-wave", 5000, "1:47 WAVEFORM"); } }
+      ];
+
+      function randomChar() {
+        return corruptChars.charAt(Math.floor(Math.random() * corruptChars.length));
       }
 
-      function corruptText(source, rate) {
-        return Array.from(source).map((char) => {
-          if (char.trim() === "") return char;
-          if (Math.random() < rate) return randomOf(corruptChars);
-          return char;
-        }).join("");
+      function corruptText(text, rate) {
+        return String(text || "")
+          .split("")
+          .map((ch) => {
+            if (ch.trim() === "") return ch;
+            return Math.random() < rate ? randomChar() : ch;
+          })
+          .join("");
       }
 
-      function updateGlitchText() {
-        const rate = corrupted ? corruptionRate : 0.035;
-        glitchTargets.forEach((node) => {
-          const clean = node.dataset.clean || node.textContent || "";
-          node.textContent = corruptText(clean, rate);
+      function flashBang() {
+        flash.classList.remove("active");
+        void flash.offsetWidth;
+        flash.classList.add("active");
+      }
+
+      function writeLog(label) {
+        const line = label || logLines[Math.floor(Math.random() * logLines.length)];
+        const t = player && typeof player.getCurrentTime === "function"
+          ? player.getCurrentTime().toFixed(2)
+          : "--";
+        warningLog.textContent = `[${t}s] ${line} / ${logLines[Math.floor(Math.random() * logLines.length)]}`;
+      }
+
+      function startMojibake() {
+        if (mojibakeTimer) clearInterval(mojibakeTimer);
+
+        glitchTargets.forEach((target) => {
+          target.dataset.clean = target.dataset.clean || target.textContent;
         });
 
-        if (corrupted) {
-          corruptionRate = Math.min(0.72, corruptionRate + 0.004);
-          document.title = corruptText("ドコノコノキノコ.exe", Math.min(0.55, corruptionRate));
-          marqueeText.textContent = corruptText("🍄 ドコノコノキノコ　ドコノコノキノコ　縺薙?繧ｭ繝弱さ　", Math.min(0.65, corruptionRate));
-        }
+        mojibakeTimer = setInterval(() => {
+          glitchTargets.forEach((target) => {
+            const clean = target.dataset.clean || target.textContent || "";
+            target.textContent = corruptText(clean, glitchRate);
+          });
+          marqueeText.textContent = corruptText("🍄 ドコノコノキノコ　ドコノコノキノコ　ドコノコノキノコ　", Math.min(0.72, glitchRate + 0.18));
+        }, 78);
       }
 
-      function spawnMojibakeRain() {
-        if (!mojibakeLayer) return;
+      function startLogs() {
+        if (logTimer) clearInterval(logTimer);
+        logTimer = setInterval(() => {
+          writeLog();
+        }, 520);
+      }
+
+      function buildMojibakeRain() {
         mojibakeLayer.innerHTML = "";
-        const count = 58;
+        const count = 42;
         for (let i = 0; i < count; i++) {
           const span = document.createElement("span");
           span.className = "moji";
-          span.textContent = corruptText("ドコノコノキノコ 縺薙?繧ｭ繝弱さ", 0.62);
+          span.textContent = Array.from({ length: 8 + Math.floor(Math.random() * 18) }, randomChar).join("");
           span.style.left = `${Math.random() * 100}%`;
-          span.style.top = `${-20 - Math.random() * 80}vh`;
-          span.style.fontSize = `${10 + Math.random() * 18}px`;
-          span.style.animationDuration = `${4 + Math.random() * 8}s`;
-          span.style.animationDelay = `${Math.random() * 4}s`;
-          span.style.opacity = String(0.28 + Math.random() * 0.62);
+          span.style.top = `${Math.random() * -100}vh`;
+          span.style.fontSize = `${12 + Math.random() * 26}px`;
+          span.style.animationDuration = `${3 + Math.random() * 7}s`;
+          span.style.animationDelay = `${Math.random() * 3}s`;
           mojibakeLayer.appendChild(span);
         }
       }
 
-      function startLogLoop() {
-        if (logTimer) clearInterval(logTimer);
-        logTimer = setInterval(() => {
-          const clean = logLines[logIndex % logLines.length];
-          warningLog.textContent = corruptText(clean, Math.min(0.55, corruptionRate));
-          logIndex++;
-        }, 360);
+      function buildEyeLayer() {
+        eyeLayer.innerHTML = "";
+        for (let i = 0; i < 55; i++) {
+          const eye = document.createElement("span");
+          eye.className = "eye-symbol";
+          eye.textContent = Math.random() < 0.82 ? "👁" : "◉";
+          eye.style.left = `${Math.random() * 100}%`;
+          eye.style.top = `${Math.random() * 100}%`;
+          eye.style.animationDelay = `${Math.random() * 1.5}s`;
+          eye.style.transform = `rotate(${Math.random() * 360}deg)`;
+          eyeLayer.appendChild(eye);
+        }
       }
 
-      function replaceVideo() {
-        const iframe = document.createElement("iframe");
-        iframe.src = `https://www.youtube-nocookie.com/embed/${MAIN_VIDEO_ID}?autoplay=1&rel=0&modestbranding=1`;
-        iframe.title = "Main mushroom video player";
-        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-        iframe.referrerPolicy = "strict-origin-when-cross-origin";
-        iframe.allowFullscreen = true;
+      function clearBackgroundEffects() {
+        document.body.classList.remove(...effectClasses);
+        if (activeBackgroundTimer) {
+          clearTimeout(activeBackgroundTimer);
+          activeBackgroundTimer = null;
+        }
+      }
 
+      function setBackgroundEffect(className, durationMs = null, label = "") {
+        clearBackgroundEffects();
+        document.body.classList.add(className);
+        writeLog(label);
+        if (className === "fx-eyes") buildEyeLayer();
+        if (durationMs) {
+          activeBackgroundTimer = setTimeout(() => {
+            document.body.classList.remove(className);
+            activeBackgroundTimer = null;
+          }, durationMs);
+        }
+      }
+
+      function temporaryBodyClass(className, durationMs, label = "") {
+        document.body.classList.add(className);
+        writeLog(label);
+        setTimeout(() => {
+          document.body.classList.remove(className);
+        }, durationMs);
+      }
+
+      function triggerGlitch(durationMs = 620, label = "GLITCH") {
+        glitchRate = Math.min(0.88, glitchRate + 0.16);
+        flashBang();
+        temporaryBodyClass("fx-glitch", durationMs, label);
+        document.title = corruptText("ドコノコノキノコ.exe", 0.45);
+      }
+
+      function spawnFallingMushroom() {
+        const mush = document.createElement("span");
+        mush.className = "falling-mush";
+        mush.textContent = Math.random() < 0.78 ? "🍄" : "☠";
+        mush.style.left = `${Math.random() * 100}%`;
+        mush.style.setProperty("--fall-duration", `${1.4 + Math.random() * 2.2}s`);
+        mush.style.setProperty("--rot", `${(Math.random() > 0.5 ? 1 : -1) * (240 + Math.random() * 620)}deg`);
+        mush.style.fontSize = `${28 + Math.random() * 44}px`;
+        rainLayer.appendChild(mush);
+        setTimeout(() => mush.remove(), 4200);
+      }
+
+      function startMushroomRain(label = "MUSHROOM RAIN") {
+        writeLog(label);
+        for (let i = 0; i < 90; i++) {
+          setTimeout(spawnFallingMushroom, i * 8);
+        }
+        if (rainTimer) clearInterval(rainTimer);
+        rainTimer = setInterval(() => {
+          for (let i = 0; i < 5; i++) spawnFallingMushroom();
+        }, 90);
+      }
+
+      function stopMushroomRain() {
+        if (rainTimer) {
+          clearInterval(rainTimer);
+          rainTimer = null;
+        }
+        writeLog("MUSHROOM RAIN STOP");
+      }
+
+      function resetTimelineForReplay() {
+        fired = new Set();
+        clearBackgroundEffects();
+        stopMushroomRain();
+        rainLayer.innerHTML = "";
+        glitchRate = 0.18;
+      }
+
+      function enterCorruptionBase() {
+        document.body.classList.add("corrupted");
+        document.documentElement.lang = "ja";
+        document.title = "ﾄﾞｺﾉｺﾉｷﾉｺ.exe";
+        buildMojibakeRain();
+        startMojibake();
+        startLogs();
+        flashBang();
+        glitchRate = 0.20;
+      }
+
+      function endToCorruptedIdle() {
+        stopMushroomRain();
+        clearBackgroundEffects();
+        rainLayer.innerHTML = "";
+        document.body.classList.add("corrupted");
+        glitchRate = 0.22;
+        writeLog("[END] 狂気版通常状態へ復帰しました");
+        document.title = "ドコノコノキノコ.exe";
+      }
+
+      function checkTimeline() {
+        if (!playerReady || !player || typeof player.getCurrentTime !== "function") return;
+        const now = player.getCurrentTime();
+
+        if (now < 1 && fired.size > 0) {
+          resetTimelineForReplay();
+        }
+
+        for (const event of timelineEvents) {
+          if (now >= event.time && !fired.has(event.id)) {
+            fired.add(event.id);
+            event.action();
+          }
+        }
+
+        glitchRate = Math.min(0.72, 0.18 + now / 230);
+      }
+
+      function startTimelineMonitor() {
+        if (timelineTimer) clearInterval(timelineTimer);
+        timelineTimer = setInterval(checkTimeline, 50);
+      }
+
+      function stopTimelineMonitor() {
+        if (timelineTimer) {
+          clearInterval(timelineTimer);
+          timelineTimer = null;
+        }
+      }
+
+      function loadYouTubeAPI() {
+        return new Promise((resolve) => {
+          if (window.YT && window.YT.Player) {
+            resolve();
+            return;
+          }
+
+          const old = window.onYouTubeIframeAPIReady;
+          window.onYouTubeIframeAPIReady = () => {
+            if (typeof old === "function") {
+              try { old(); } catch (_) {}
+            }
+            resolve();
+          };
+
+          if (!document.querySelector("script[src='https://www.youtube.com/iframe_api']")) {
+            const tag = document.createElement("script");
+            tag.src = "https://www.youtube.com/iframe_api";
+            document.head.appendChild(tag);
+          }
+        });
+      }
+
+      async function startMainVideo() {
+        if (timelineStarted) return;
+        timelineStarted = true;
+
+        enterCorruptionBase();
         coverThumb.remove();
         thumbOverlay.remove();
-        videoShell.appendChild(iframe);
+
+        const playerDiv = document.createElement("div");
+        playerDiv.id = "player";
+        videoShell.appendChild(playerDiv);
+
+        await loadYouTubeAPI();
+
+        player = new YT.Player("player", {
+          videoId: MAIN_VIDEO_ID,
+          playerVars: {
+            autoplay: 1,
+            playsinline: 1,
+            rel: 0,
+            modestbranding: 1,
+            controls: 1
+          },
+          events: {
+            onReady: (event) => {
+              playerReady = true;
+              writeLog("[YT_API] Player ready");
+              try { event.target.playVideo(); } catch (_) {}
+              startTimelineMonitor();
+            },
+            onStateChange: (event) => {
+              if (!window.YT || !window.YT.PlayerState) return;
+              if (event.data === YT.PlayerState.PLAYING) {
+                startTimelineMonitor();
+              } else if (event.data === YT.PlayerState.ENDED) {
+                stopTimelineMonitor();
+                endToCorruptedIdle();
+              }
+            },
+            onError: () => {
+              writeLog("[YT_API] 動画の読み込みに失敗しました");
+            }
+          }
+        });
       }
 
-      function corrupt() {
-        if (corrupted) return;
-        corrupted = true;
-        corruptionRate = 0.16;
-
-        flash.classList.remove("active");
-        void flash.offsetWidth;
-        flash.classList.add("active");
-
-        document.body.classList.add("corrupted");
-        spawnMojibakeRain();
-        replaceVideo();
-        startLogLoop();
-
-        if (scrambleTimer) clearInterval(scrambleTimer);
-        scrambleTimer = setInterval(updateGlitchText, 72);
-      }
-
-      enterBtn?.addEventListener("click", corrupt);
-      panicBtn?.addEventListener("click", corrupt);
-
-      scrambleTimer = setInterval(updateGlitchText, 420);
+      enterBtn.addEventListener("click", startMainVideo);
+      panicBtn.addEventListener("click", startMainVideo);
 
       document.addEventListener("keydown", (event) => {
-        if (event.key.toLowerCase() === "r" && event.shiftKey) {
+        if (event.shiftKey && event.key.toLowerCase() === "r") {
           location.reload();
         }
       });
