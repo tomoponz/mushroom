@@ -85,6 +85,7 @@
     .rain-layer,
     .eye-layer,
     .tab-storm-layer,
+    .cross-layer,
     .mojibake-layer{
       position:fixed;
       inset:0;
@@ -96,6 +97,44 @@
     .eye-layer{z-index:2; opacity:0; transition:opacity .12s linear}
     .tab-storm-layer{z-index:96; opacity:0; transition:opacity .08s linear}
     .tab-storm-layer.active{opacity:1}
+
+    .cross-layer{
+      z-index:92;
+      opacity:0;
+      padding:10px 10px 52px;
+      display:grid;
+      grid-template-columns:repeat(var(--cross-cols, 16), var(--cross-cell, 52px));
+      grid-auto-rows:var(--cross-cell, 52px);
+      gap:2px;
+      align-content:start;
+      justify-content:start;
+      transition:opacity .16s linear;
+      mix-blend-mode:screen;
+    }
+    .cross-layer.active{opacity:.94}
+    .cross-mark{
+      display:grid;
+      place-items:center;
+      width:var(--cross-cell, 52px);
+      height:var(--cross-cell, 52px);
+      color:#f7ffe9;
+      font-family:"Times New Roman","Yu Mincho",serif;
+      font-size:calc(var(--cross-cell, 52px) * .78);
+      line-height:1;
+      text-shadow:
+        2px 0 rgba(255,16,56,.88),
+        -2px 0 rgba(116,255,77,.70),
+        0 0 20px rgba(247,255,233,.52);
+      filter:contrast(1.2);
+      animation:crossPop .18s steps(2,end) both;
+    }
+    .cross-mark:nth-child(3n){color:#74ff4d}
+    .cross-mark:nth-child(4n){color:#ff1038}
+    .cross-mark:nth-child(5n){opacity:.68}
+    @keyframes crossPop{
+      from{transform:scale(.18); opacity:0; filter:blur(3px)}
+      to{transform:scale(1); opacity:1; filter:blur(0)}
+    }
     .mojibake-layer{z-index:3; opacity:0; transition:opacity .2s linear}
 
     .mush{
@@ -1066,11 +1105,13 @@
       50%{filter:contrast(1.35) saturate(1.45) hue-rotate(22deg) drop-shadow(0 0 36px rgba(255,16,56,.32));}
     }
     @media (max-width:860px){
+      .cross-layer{padding:8px 8px 48px; gap:1px;}
       .donald-layer{width:min(55vw,520px); opacity:0;}
       .donald-layer.active{opacity:.68;}
       .starmie-layer{width:min(36vw,230px); height:min(28vh,230px); right:10px; bottom:44px;}
     }
     @media (max-width:560px){
+      .cross-layer{padding:6px 6px 44px; gap:1px;}
       .donald-layer{width:65vw; bottom:36px;}
       .donald-layer.active{opacity:.52;}
       .starmie-layer{width:34vw; height:34vw; right:8px; bottom:42px;}
@@ -1128,6 +1169,7 @@
 <body>
   <div class="flash" id="flash" aria-hidden="true"></div>
   <div class="timeline-overlay" id="timelineOverlay" aria-hidden="true"></div>
+  <div class="cross-layer" id="crossLayer" aria-hidden="true"></div>
   <div class="effect-backdrop" id="effectBackdrop" aria-hidden="true"></div>
   <div class="mosaic-layer" id="mosaicLayer" aria-hidden="true">
     <i class="mosaic-piece" data-piece="top"></i>
@@ -1218,6 +1260,7 @@
       const panicBtn = document.getElementById("panicBtn");
       const flash = document.getElementById("flash");
       const timelineOverlay = document.getElementById("timelineOverlay");
+      const crossLayer = document.getElementById("crossLayer");
       const effectBackdrop = document.getElementById("effectBackdrop");
       const mosaicLayer = document.getElementById("mosaicLayer");
       const mosaicPieces = Array.from(document.querySelectorAll(".mosaic-piece"));
@@ -1304,6 +1347,7 @@
       let rainActive = false;
       let tabStormActive = false;
       let tabStormTimer = null;
+      let crossLayerCount = -1;
       const activeTimedClasses = new Set();
 
       const timelineEvents = [
@@ -1338,6 +1382,12 @@
       const timelineTabStormWindows = [
         { start: 0, end: 5, key: "tabstorm-000", label: "0:00 VIRUS TAB STORM" }
       ];
+
+      const timelineCrossWindow = {
+        start: 131,
+        end: 195,
+        label: "2:11 CROSS MARK GRID"
+      };
 
       const timelineChromaWindows = [
         { start: 88, end: 112, id: "donald", className: "fx-chroma-donald", label: "1:28 DONALD BLUEBACK LOOP" },
@@ -1697,6 +1747,50 @@
         }, 1500);
       }
 
+      function getCrossGridMetrics() {
+        const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        const cell = viewportWidth < 420 ? 28 : viewportWidth < 620 ? 32 : viewportWidth < 920 ? 42 : 52;
+        const paddingX = viewportWidth < 560 ? 12 : 20;
+        const cols = Math.max(4, Math.floor((viewportWidth - paddingX) / (cell + 2)));
+        return { cell, cols };
+      }
+
+      function renderCrossLayer(count) {
+        if (!crossLayer) return;
+        const safeCount = Math.max(0, Math.min(128, Math.floor(count)));
+        const { cell, cols } = getCrossGridMetrics();
+        crossLayer.style.setProperty("--cross-cell", `${cell}px`);
+        crossLayer.style.setProperty("--cross-cols", String(cols));
+        if (crossLayerCount === safeCount && crossLayer.dataset.cols === String(cols)) return;
+        crossLayerCount = safeCount;
+        crossLayer.dataset.cols = String(cols);
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < safeCount; i++) {
+          const mark = document.createElement("span");
+          mark.className = "cross-mark";
+          mark.textContent = i % 7 === 0 ? "✟" : "✝";
+          mark.style.animationDelay = `${Math.min(.42, (i % Math.max(1, cols)) * .015)}s`;
+          fragment.appendChild(mark);
+        }
+        crossLayer.replaceChildren(fragment);
+      }
+
+      function syncCrossLayerByTime(now) {
+        if (!crossLayer) return;
+        const active = now >= timelineCrossWindow.start && now < timelineCrossWindow.end;
+        if (!active) {
+          crossLayer.classList.remove("active");
+          if (crossLayerCount !== 0) {
+            crossLayerCount = 0;
+            crossLayer.replaceChildren();
+          }
+          return;
+        }
+        const count = Math.floor(now - timelineCrossWindow.start) + 1;
+        crossLayer.classList.add("active");
+        renderCrossLayer(count);
+      }
+
 
       function spawnFallingMushroom() {
         const mush = document.createElement("span");
@@ -1928,6 +2022,9 @@
         stopAllChromaActors();
         rainLayer.innerHTML = "";
         if (tabStormLayer) tabStormLayer.innerHTML = "";
+        if (crossLayer) crossLayer.replaceChildren();
+        if (crossLayer) crossLayer.classList.remove("active");
+        crossLayerCount = -1;
         glitchRate = 0.18;
         activeBackgroundKey = "";
         lastTimelineTime = 0;
@@ -1968,6 +2065,9 @@
         activeTimedClasses.clear();
         rainLayer.innerHTML = "";
         if (tabStormLayer) tabStormLayer.innerHTML = "";
+        if (crossLayer) crossLayer.replaceChildren();
+        if (crossLayer) crossLayer.classList.remove("active");
+        crossLayerCount = -1;
         document.body.classList.add("corrupted");
         glitchRate = 0.22;
         writeLog("[END] 狂気版通常状態へ復帰しました");
@@ -2051,6 +2151,7 @@
           syncClassWindows(now);
           syncRainByTime(now);
           syncTabStormByTime(now);
+          syncCrossLayerByTime(now);
           syncChromaByTime(now);
         }
         lastTimelineTime = now;
@@ -2063,6 +2164,7 @@
         syncClassWindows(now);
         syncRainByTime(now);
         syncTabStormByTime(now);
+        syncCrossLayerByTime(now);
         syncChromaByTime(now);
 
         for (const event of timelineEvents) {
@@ -2160,7 +2262,14 @@
       enterBtn.addEventListener("click", startMainVideo);
       panicBtn.addEventListener("click", startMainVideo);
 
-      window.addEventListener("resize", updateProtectedVisualZones, { passive: true });
+      window.addEventListener("resize", () => {
+        updateProtectedVisualZones();
+        if (crossLayer?.classList.contains("active")) {
+          const now = player && typeof player.getCurrentTime === "function" ? player.getCurrentTime() : timelineCrossWindow.start;
+          crossLayerCount = -1;
+          syncCrossLayerByTime(now);
+        }
+      }, { passive: true });
       window.addEventListener("scroll", updateProtectedVisualZones, { passive: true });
       updateProtectedVisualZones();
 
