@@ -1296,8 +1296,10 @@
     }
     .selection-secret{
       margin:8px 0 0;
-      color:rgba(255,255,255,0.001);
-      text-shadow:none;
+      color:transparent !important;
+      -webkit-text-fill-color:transparent !important;
+      text-shadow:none !important;
+      opacity:1;
       user-select:text;
       -webkit-user-select:text;
       font-family:"MS Gothic","Yu Gothic Mono",monospace;
@@ -1307,7 +1309,13 @@
     }
     .selection-secret::selection{
       background:#005cff;
-      color:#fff;
+      color:#fff !important;
+      -webkit-text-fill-color:#fff !important;
+      text-shadow:none;
+    }
+    .selection-secret::-moz-selection{
+      background:#005cff;
+      color:#fff !important;
       text-shadow:none;
     }
 
@@ -1705,7 +1713,7 @@
       const YOU_ARE_IDIOT_IMAGE = "assets/img/you-are-idiot.png";
       const SCAM_AD_IMAGE = "assets/img/scam-ad.png";
       const SIDE_LOOP_VIDEO = "assets/video/side-loop.mp4";
-      const EIGHT_FLOOD_TEXT = "888888888888888888888888888888888888888888888888888888888888888888888888";
+      const EIGHT_FLOOD_TEXT = "8".repeat(240);
       const RUNNER_VIDEO = "assets/video/orga-runner-bb.mp4";
       const BG_TIMELINE_VIDEO = "assets/video/bg-0105.mp4";
       const coverThumb = document.getElementById("coverThumb");
@@ -1870,7 +1878,7 @@
         { start: 5, end: 7, key: "heartbeat-005", className: "fx-heartbeat", label: "0:05 HEARTBEAT" },
         { start: 50, end: 50.82, key: "idiot-050", className: "fx-idiot", label: "0:50 YOU ARE IDIOT" },
         { start: 71, end: 84, key: "ad-111", className: "fx-ad", label: "1:11 STRANGE AD" },
-        { start: 32, end: 35, key: "flicker-032", className: "fx-flicker", label: "0:32 FLICKER" },
+        { start: 33, end: 36, key: "flicker-033", className: "fx-flicker", label: "0:33 FLICKER" },
         { start: 67, end: 70, key: "mosaic-107", className: "fx-mosaic", label: "1:07 CLASSIC MOSAIC" }
       ];
 
@@ -1963,7 +1971,6 @@
 
         mojibakeTimer = setInterval(() => {
           if (eightTextActive) {
-            forceEightText();
             return;
           }
           glitchTargets.forEach((target) => {
@@ -2096,12 +2103,20 @@
         }
       }
 
-      function forceEightText() {
+      function getEightFloodTypingText(now, start = 54.8, end = 55.8) {
+        const progress = Math.max(0, Math.min(1, (now - start) / Math.max(0.001, end - start)));
+        const count = Math.max(12, Math.min(240, Math.floor(12 + progress * 228)));
+        return "8".repeat(count);
+      }
+
+      function forceEightText(text = EIGHT_FLOOD_TEXT) {
         collectEightTextNodes();
+        if (text === lastEightFloodText) return;
+        lastEightFloodText = text;
         eightTextNodes.forEach((_, node) => {
-          if (node && node.isConnected) node.nodeValue = EIGHT_FLOOD_TEXT;
+          if (node && node.isConnected) node.nodeValue = text;
         });
-        document.title = EIGHT_FLOOD_TEXT.slice(0, 32);
+        document.title = text.slice(0, 32);
       }
 
       function restoreEightText() {
@@ -2109,6 +2124,7 @@
           if (node && node.isConnected) node.nodeValue = value;
         });
         eightTextNodes.clear();
+        lastEightFloodText = "";
         glitchTargets.forEach((target) => {
           if (target.dataset.clean) target.textContent = target.dataset.clean;
         });
@@ -2118,18 +2134,25 @@
         document.title = "ﾄﾞｺﾉｺﾉｷﾉｺ.exe";
       }
 
-      function setEightTextMode(active) {
-        if (eightTextActive === active) return;
-        eightTextActive = active;
+      function setEightTextMode(active, text = EIGHT_FLOOD_TEXT) {
         if (active) {
-          forceEightText();
+          eightTextActive = true;
+          forceEightText(text);
           return;
         }
+        if (!eightTextActive) return;
+        eightTextActive = false;
         restoreEightText();
       }
 
       function syncEightTextByTime(now) {
-        setEightTextMode(now >= 54.8 && now < 55.8);
+        const start = 54.8;
+        const end = 55.8;
+        if (now >= start && now < end) {
+          setEightTextMode(true, getEightFloodTypingText(now, start, end));
+          return;
+        }
+        setEightTextMode(false);
       }
 
       function clearBackgroundEffects(resetKey = true) {
