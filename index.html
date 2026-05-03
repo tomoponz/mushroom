@@ -102,6 +102,7 @@
     .eye-under-layer{z-index:86; opacity:0; transition:opacity .12s linear}
     .eye-layer{z-index:87; opacity:0; transition:opacity .12s linear}
     body.fx-eyes .eye-under-layer{opacity:.98}
+    body.fx-eyes .eye-layer{pointer-events:none}
     .tab-storm-layer{z-index:96; opacity:0; transition:opacity .08s linear}
     .tab-storm-layer.active{opacity:1}
 
@@ -434,6 +435,12 @@
       transform-origin:center;
       user-select:none;
       -webkit-user-drag:none;
+      pointer-events:auto;
+      cursor:crosshair;
+    }
+    .eye-img.eye-swapped{
+      filter:drop-shadow(0 0 26px rgba(255,16,56,.62)) drop-shadow(0 0 18px rgba(247,255,233,.34)) contrast(1.22) saturate(1.18) brightness(1.05);
+      opacity:.98;
     }
     @keyframes eyeFloat{
       from{translate:0 -6px; scale:.96}
@@ -918,6 +925,16 @@
       filter:contrast(1.06) saturate(1.12);
       user-select:none;
       -webkit-user-drag:none;
+      transition:filter .08s steps(2,end), transform .08s steps(2,end);
+    }
+    .virus-tab.ending{
+      border-color:rgba(255,16,56,.96);
+      box-shadow:10px 12px 0 rgba(0,0,0,.55), 0 0 34px rgba(255,16,56,.50);
+      background:linear-gradient(180deg,#f4dede,#b7b7b7 28px,#ffffff 29px);
+    }
+    .virus-tab.ending img{
+      filter:contrast(1.25) saturate(1.35) hue-rotate(-8deg);
+      transform:scale(1.02);
     }
     @keyframes tabPop{
       0%{opacity:0; transform:translate(-50%,-50%) scale(.08)}
@@ -976,25 +993,34 @@
 
     body.fx-psy{
       background:
-        linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.38)),
+        radial-gradient(circle at 50% 48%, rgba(255,255,255,.08), transparent 38%),
         url("assets/img/psychedelic.png") center / cover no-repeat fixed;
-      animation:psySpin .26s linear infinite, screenPulse .6s steps(2,end) infinite !important;
+      animation:psySpin .18s linear infinite, screenPulse .42s steps(2,end) infinite !important;
     }
     body.fx-psy::before{
       background:
-        repeating-conic-gradient(from 0deg, rgba(255,255,255,.20) 0 10deg, transparent 10deg 18deg),
-        repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.14) 0 8px, rgba(0,0,0,.18) 8px 16px);
-      opacity:.74;
-      mix-blend-mode:overlay;
-      animation:psyZoom .33s ease-in-out infinite alternate;
+        repeating-conic-gradient(from 0deg, rgba(255,255,255,.34) 0 8deg, rgba(255,0,255,.20) 8deg 14deg, rgba(0,255,255,.18) 14deg 20deg, transparent 20deg 28deg),
+        repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.22) 0 6px, rgba(0,0,0,.10) 6px 13px);
+      opacity:.88;
+      mix-blend-mode:screen;
+      animation:psyZoom .18s ease-in-out infinite alternate;
     }
     body.fx-psy::after{
-      opacity:.52;
-      background:repeating-linear-gradient(0deg, rgba(255,255,255,.16) 0 2px, transparent 2px 7px);
-      mix-blend-mode:screen;
+      opacity:.72;
+      background:
+        linear-gradient(90deg, rgba(255,0,255,.30), rgba(0,255,255,.26), rgba(0,255,0,.22), rgba(255,255,0,.24)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.22) 0 2px, transparent 2px 6px);
+      mix-blend-mode:color-dodge;
+      animation:psyChromatic .22s steps(2,end) infinite;
     }
-    @keyframes psySpin{to{filter:hue-rotate(360deg) saturate(2.2) contrast(1.25)}}
-    @keyframes psyZoom{from{transform:scale(1)} to{transform:scale(1.055) rotate(1.5deg)}}
+    body.fx-psy .panel,
+    body.fx-psy .mushroom-field,
+    body.fx-psy .marquee{
+      filter:saturate(2.25) contrast(1.35) hue-rotate(18deg);
+    }
+    @keyframes psySpin{to{filter:hue-rotate(360deg) saturate(3.2) contrast(1.55) brightness(1.18)}}
+    @keyframes psyZoom{from{transform:scale(1) rotate(0deg)} to{transform:scale(1.09) rotate(2.4deg)}}
+    @keyframes psyChromatic{0%,100%{transform:translate(0,0)}50%{transform:translate(6px,-3px)}}
 
     body.fx-blackout{
       background:#000 !important;
@@ -1462,6 +1488,8 @@
 
       const MAIN_VIDEO_ID = "NYnpsWrVGKg";
       const TAB_STORM_IMAGE = "assets/img/393.png";
+      const TAB_STORM_END_IMAGE = "assets/img/393-end.png";
+      const EYE_CLICK_IMAGE = "assets/img/eye-clicked.png";
       const RUNNER_VIDEO = "assets/video/orga-runner-bb.mp4";
       const BG_TIMELINE_VIDEO = "assets/video/bg-0105.mp4";
       const coverThumb = document.getElementById("coverThumb");
@@ -1530,7 +1558,9 @@
         "assets/img/colorbar.jpg",
         "assets/img/hole-eyes.png",
         "assets/img/face-eye-corner.png",
+        EYE_CLICK_IMAGE,
         TAB_STORM_IMAGE,
+        TAB_STORM_END_IMAGE,
         ...MUSHROOM_RAIN_IMAGES
       ]);
       const logLines = [
@@ -1754,8 +1784,16 @@
           const eye = document.createElement("img");
           eye.className = "eye-img";
           eye.src = "assets/img/eye.png";
+          eye.dataset.originalSrc = "assets/img/eye.png";
           eye.alt = "";
           eye.decoding = "async";
+          eye.addEventListener("click", (event) => {
+            event.stopPropagation();
+            eye.src = EYE_CLICK_IMAGE;
+            eye.classList.add("eye-swapped");
+            eye.style.setProperty("--eye-size", `${Math.round(parseFloat(eye.style.getPropertyValue("--eye-size")) * 1.06 || 132)}px`);
+            writeLog("[EYE_CLICK] 眼球パーツが破損画像へ置換されました");
+          }, { once: true });
 
           const zone = weightedChoice(usableZones);
           const size = Math.round((safe.viewportWidth < 560 ? 44 : 58) + Math.pow(Math.random(), 1.55) * (safe.viewportWidth < 560 ? 104 : 190));
@@ -2170,12 +2208,18 @@
 
         tab.style.left = `${point.x}px`;
         tab.style.top = `${point.y}px`;
+        const tabLife = 0.86 + Math.random() * 1.35;
         tab.style.setProperty("--tab-w", `${width}px`);
         tab.style.setProperty("--tab-scale", `${0.84 + Math.random() * 0.46}`);
-        tab.style.setProperty("--tab-life", `${0.86 + Math.random() * 1.35}s`);
+        tab.style.setProperty("--tab-life", `${tabLife}s`);
         tab.style.zIndex = String(10 + Math.floor(Math.random() * 900));
         tabStormLayer.appendChild(tab);
-        setTimeout(() => tab.remove(), 2600);
+        setTimeout(() => {
+          if (!tab.isConnected) return;
+          img.src = TAB_STORM_END_IMAGE;
+          tab.classList.add("ending");
+        }, Math.max(80, tabLife * 1000 - 190));
+        setTimeout(() => tab.remove(), tabLife * 1000 + 360);
       }
 
       function startTabStorm(label = "VIRUS TAB STORM") {
