@@ -1404,6 +1404,80 @@
       .fake-ad.a4{right:4vw;bottom:8vh}
     }
 
+
+    /* ===== latest: scam ad image + side loop video ===== */
+    .ad-layer{
+      z-index:94;
+    }
+    .fake-ad{
+      width:min(92vw,980px) !important;
+      min-height:0 !important;
+      padding:0 !important;
+      border:0 !important;
+      background:transparent !important;
+      box-shadow:0 0 42px rgba(255,240,90,.46), 10px 10px 0 rgba(0,0,0,.52) !important;
+      overflow:visible;
+      animation:adJitter .14s steps(2,end) infinite !important;
+    }
+    .fake-ad img{
+      width:100% !important;
+      height:auto !important;
+      display:block !important;
+      border:3px ridge #ffe764;
+      background:transparent !important;
+      filter:contrast(1.08) saturate(1.18) drop-shadow(0 0 18px rgba(255,255,255,.22));
+    }
+    .fake-ad strong,
+    .fake-ad span{
+      display:none !important;
+    }
+    .fake-ad.a1{left:50%;top:13%;transform:translateX(-50%) rotate(-1.2deg)}
+    .fake-ad.a2{right:2vw;top:35%;width:min(62vw,740px) !important;transform:rotate(1deg)}
+    .fake-ad.a3{left:2vw;bottom:13%;width:min(58vw,700px) !important;transform:rotate(.7deg)}
+    .fake-ad.a4{right:5vw;bottom:5%;width:min(70vw,820px) !important;transform:rotate(-1deg)}
+
+    .side-loop-layer{
+      position:fixed;
+      inset:0;
+      z-index:88;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .18s linear, filter .18s linear;
+      overflow:hidden;
+      contain:layout paint;
+    }
+    .side-loop-layer.active{
+      opacity:.92;
+      filter:contrast(1.1) saturate(1.2) drop-shadow(0 0 20px rgba(255,255,255,.16));
+    }
+    .side-loop-video{
+      position:fixed;
+      width:clamp(140px,24vw,420px);
+      aspect-ratio:16/9;
+      object-fit:cover;
+      border:2px solid rgba(247,255,233,.28);
+      background:#000;
+      box-shadow:0 0 34px rgba(116,255,77,.20), 5px 5px 0 rgba(0,0,0,.44);
+      mix-blend-mode:screen;
+      animation:sideLoopJitter .34s steps(2,end) infinite;
+    }
+    .side-loop-video.right{
+      transform:scaleX(-1);
+    }
+    @keyframes sideLoopJitter{
+      0%,100%{filter:contrast(1.05) saturate(1.08); translate:0 0}
+      50%{filter:contrast(1.25) saturate(1.45) hue-rotate(8deg); translate:1px -1px}
+    }
+    @media (max-width:560px){
+      .fake-ad{width:min(96vw,520px) !important;}
+      .fake-ad.a1{top:9%;}
+      .fake-ad.a2{top:34%;width:82vw !important;right:2vw;}
+      .fake-ad.a3{left:2vw;bottom:16%;width:80vw !important;}
+      .fake-ad.a4{right:4vw;bottom:5%;width:84vw !important;}
+      .side-loop-layer.active{opacity:.82;}
+      .side-loop-video{width:clamp(110px,42vw,190px);}
+    }
+
     @media (max-width:860px){
       .cross-layer{padding:8px 8px 48px; gap:1px;}
       .donald-layer{width:min(55vw,520px); opacity:0;}
@@ -1492,15 +1566,19 @@
     <img class="idiot-img" src="assets/img/you-are-idiot.png" alt="">
   </div>
   <div class="ad-layer" id="adLayer" aria-hidden="true">
-    <div class="fake-ad a1"><img src="assets/img/you-are-idiot.png" alt=""><strong>今スグ確認</strong><span>縺薙?縺薙?無料安全診断</span></div>
-    <div class="fake-ad a2"><img src="assets/img/you-are-idiot.png" alt=""><strong>当選しました</strong><span>あなたのキノコは危険です</span></div>
-    <div class="fake-ad a3"><img src="assets/img/you-are-idiot.png" alt=""><strong>謎の広告</strong><span>閉じるボタンはありません</span></div>
-    <div class="fake-ad a4"><img src="assets/img/you-are-idiot.png" alt=""><strong>CLICK HERE</strong><span>you are an idiot / DOKO NODE</span></div>
+    <div class="fake-ad a1"><img src="assets/img/scam-ad.png" alt=""></div>
+    <div class="fake-ad a2"><img src="assets/img/scam-ad.png" alt=""></div>
+    <div class="fake-ad a3"><img src="assets/img/scam-ad.png" alt=""></div>
+    <div class="fake-ad a4"><img src="assets/img/scam-ad.png" alt=""></div>
   </div>
   <div class="cross-layer" id="crossLayer" aria-hidden="true"></div>
   <div class="effect-backdrop" id="effectBackdrop" aria-hidden="true"></div>
   <div class="bg-video-layer" id="bgVideoLayer" aria-hidden="true">
     <video id="bgTimelineVideo" src="assets/video/bg-0105.mp4" muted loop playsinline preload="metadata"></video>
+  </div>
+  <div class="side-loop-layer" id="sideLoopLayer" aria-hidden="true">
+    <video class="side-loop-video left" id="sideLoopLeftVideo" src="assets/video/side-loop.mp4" muted loop playsinline preload="metadata"></video>
+    <video class="side-loop-video right" id="sideLoopRightVideo" src="assets/video/side-loop.mp4" muted loop playsinline preload="metadata"></video>
   </div>
   <div class="mosaic-layer" id="mosaicLayer" aria-hidden="true">
     <i class="mosaic-piece" data-piece="top"></i>
@@ -1625,6 +1703,8 @@
       const TAB_STORM_END_IMAGE = "assets/img/393-end.png";
       const EYE_CLICK_IMAGE = "assets/img/eye-clicked.png";
       const YOU_ARE_IDIOT_IMAGE = "assets/img/you-are-idiot.png";
+      const SCAM_AD_IMAGE = "assets/img/scam-ad.png";
+      const SIDE_LOOP_VIDEO = "assets/video/side-loop.mp4";
       const EIGHT_FLOOD_TEXT = "888888888888888888888888888888888888888888888888888888888888888888888888";
       const RUNNER_VIDEO = "assets/video/orga-runner-bb.mp4";
       const BG_TIMELINE_VIDEO = "assets/video/bg-0105.mp4";
@@ -1642,6 +1722,9 @@
       const effectBackdrop = document.getElementById("effectBackdrop");
       const bgVideoLayer = document.getElementById("bgVideoLayer");
       const bgTimelineVideo = document.getElementById("bgTimelineVideo");
+      const sideLoopLayer = document.getElementById("sideLoopLayer");
+      const sideLoopLeftVideo = document.getElementById("sideLoopLeftVideo");
+      const sideLoopRightVideo = document.getElementById("sideLoopRightVideo");
       const mosaicLayer = document.getElementById("mosaicLayer");
       const mosaicPieces = Array.from(document.querySelectorAll(".mosaic-piece"));
       const warningLog = document.getElementById("warningLog");
@@ -1701,6 +1784,7 @@
         TAB_STORM_IMAGE,
         TAB_STORM_END_IMAGE,
         YOU_ARE_IDIOT_IMAGE,
+        SCAM_AD_IMAGE,
         ...MUSHROOM_RAIN_IMAGES
       ]);
       const logLines = [
@@ -1733,7 +1817,8 @@
         "fx-ad",
         "fx-chroma-donald",
         "fx-chroma-starmie",
-        "fx-chroma-runner"
+        "fx-chroma-runner",
+        "fx-side-loop"
       ];
 
       let glitchRate = 0.08;
@@ -1757,6 +1842,8 @@
       let eightTextActive = false;
       let bgVideoActive = false;
       let bgVideoLastSync = 0;
+      let sideLoopActive = false;
+      let sideLoopLastSync = 0;
       const eightTextNodes = new Map();
       const activeTimedClasses = new Set();
 
@@ -1806,6 +1893,13 @@
         end: 69,
         key: "bg-video-105",
         label: "1:05 BACKGROUND VIDEO"
+      };
+
+      const timelineSideLoopWindow = {
+        start: 131,
+        end: 177,
+        key: "side-loop-211",
+        label: "2:11 SIDE LOOP VIDEOS"
       };
 
       const timelineChromaWindows = [
@@ -2163,6 +2257,7 @@
         updateChromaSafeLayout();
         updateRunnerSafeLayout();
         updateMemeSafeLayout();
+        updateSideLoopLayout();
         if (document.body.classList.contains("fx-eyes")) updateEyeUnderLayerLayout();
       }
 
@@ -2803,6 +2898,96 @@
         }
       }
 
+
+      function setSideVideoBox(video, left, top, width, height) {
+        if (!video) return;
+        video.style.left = `${Math.round(left)}px`;
+        video.style.top = `${Math.round(top)}px`;
+        video.style.width = `${Math.round(width)}px`;
+        video.style.height = `${Math.round(height)}px`;
+      }
+
+      function updateSideLoopLayout() {
+        const safe = getVideoSafeRect(12);
+        const vw = safe.viewportWidth;
+        const vh = safe.viewportHeight;
+        const bottomGuard = 44;
+        const compact = vw < 680;
+        const maxW = compact ? Math.min(190, vw * .42) : Math.min(420, vw * .24);
+        const minW = compact ? 108 : 150;
+        const leftSpace = Math.max(0, safe.left - 14);
+        const rightSpace = Math.max(0, vw - safe.right - 14);
+        const leftW = leftSpace >= minW ? Math.min(maxW, leftSpace) : Math.min(maxW, vw * .38);
+        const rightW = rightSpace >= minW ? Math.min(maxW, rightSpace) : Math.min(maxW, vw * .38);
+        const leftH = leftW * 9 / 16;
+        const rightH = rightW * 9 / 16;
+
+        if (leftSpace >= minW) {
+          setSideVideoBox(sideLoopLeftVideo, 6, Math.max(8, safe.top + 6), leftW, leftH);
+        } else {
+          const top = safe.bottom + 8 + leftH < vh - bottomGuard ? safe.bottom + 8 : Math.max(8, safe.top - leftH - 8);
+          setSideVideoBox(sideLoopLeftVideo, 6, Math.max(8, Math.min(top, vh - leftH - bottomGuard)), leftW, leftH);
+        }
+
+        if (rightSpace >= minW) {
+          setSideVideoBox(sideLoopRightVideo, vw - rightW - 6, Math.max(8, safe.top + 6), rightW, rightH);
+        } else {
+          const top = safe.bottom + 8 + rightH < vh - bottomGuard ? safe.bottom + 8 : Math.max(8, safe.top - rightH - 8);
+          setSideVideoBox(sideLoopRightVideo, vw - rightW - 6, Math.max(8, Math.min(top, vh - rightH - bottomGuard)), rightW, rightH);
+        }
+      }
+
+      function stopSideLoop() {
+        sideLoopActive = false;
+        sideLoopLastSync = 0;
+        document.body.classList.remove("fx-side-loop");
+        sideLoopLayer?.classList.remove("active");
+        [sideLoopLeftVideo, sideLoopRightVideo].forEach((video) => {
+          if (!video) return;
+          video.pause();
+          try { video.currentTime = 0; } catch (_) {}
+        });
+      }
+
+      function syncSideLoopByTime(now) {
+        const win = timelineSideLoopWindow;
+        const active = now >= win.start && now < win.end;
+        if (!active) {
+          if (sideLoopActive) stopSideLoop();
+          return;
+        }
+
+        const videos = [sideLoopLeftVideo, sideLoopRightVideo].filter(Boolean);
+        const targetTime = Math.max(0, now - win.start);
+        if (!sideLoopActive) {
+          sideLoopActive = true;
+          document.body.classList.add("fx-side-loop");
+          sideLoopLayer?.classList.add("active");
+          updateSideLoopLayout();
+          videos.forEach((video) => {
+            video.muted = true;
+            video.loop = true;
+            video.playsInline = true;
+            try { video.currentTime = targetTime % Math.max(.1, video.duration || 8); } catch (_) {}
+            video.play().catch(() => {});
+          });
+          writeLog(win.label);
+          sideLoopLastSync = now;
+          return;
+        }
+
+        videos.forEach((video) => {
+          if (Number.isFinite(video.duration) && video.duration > 0) {
+            const expected = targetTime % video.duration;
+            if (Math.abs((video.currentTime || 0) - expected) > .55 || Math.abs(now - sideLoopLastSync) > 1.8) {
+              try { video.currentTime = expected; } catch (_) {}
+            }
+          }
+          if (video.paused) video.play().catch(() => {});
+        });
+        sideLoopLastSync = now;
+      }
+
       function resetTimelineForReplay() {
         fired = new Set();
         clearBackgroundEffects();
@@ -2812,6 +2997,7 @@
         stopTabStorm();
         stopAllChromaActors();
         stopBackgroundVideo();
+        stopSideLoop();
         setEightTextMode(false);
         stopRunnerLayer();
         rainLayer.innerHTML = "";
@@ -2833,6 +3019,8 @@
 
         const timelineVideos = [
           bgTimelineVideo,
+          sideLoopLeftVideo,
+          sideLoopRightVideo,
           ...Object.values(chromaActors).map((actor) => actor.video)
         ].filter(Boolean);
 
@@ -2860,6 +3048,7 @@
         stopTabStorm();
         stopAllChromaActors();
         stopBackgroundVideo();
+        stopSideLoop();
         setEightTextMode(false);
         stopRunnerLayer();
         clearBackgroundEffects();
@@ -2952,6 +3141,7 @@
           resetOneShotEventsAfter(now);
           syncBackgroundByTime(now);
           syncBackgroundVideoByTime(now);
+          syncSideLoopByTime(now);
           syncClassWindows(now);
           syncRainByTime(now);
           syncTabStormByTime(now);
@@ -2965,6 +3155,7 @@
           document.body.classList.contains("fx-mosaic") ||
           document.body.classList.contains("fx-eyes") ||
           document.body.classList.contains("fx-idiot") ||
+          document.body.classList.contains("fx-side-loop") ||
           Boolean(document.querySelector(".chroma-layer.active"));
 
         if (needsProtectedZoneUpdate && now - lastProtectedZoneUpdate > 0.18) {
@@ -2973,6 +3164,7 @@
         }
         syncBackgroundByTime(now);
         syncBackgroundVideoByTime(now);
+        syncSideLoopByTime(now);
         syncClassWindows(now);
         syncRainByTime(now);
         syncTabStormByTime(now);
