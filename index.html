@@ -533,7 +533,9 @@
       align-items:center;
       justify-content:center;
       pointer-events:none;
-      padding:18px;
+      padding:clamp(8px,2vw,18px);
+      overflow:hidden;
+      contain:layout paint;
       background:rgba(0,0,0,.40);
       color:#f7ffe9;
       font-family:"MS Gothic","Yu Gothic Mono",monospace;
@@ -542,23 +544,27 @@
     }
     .eight-flood-layer.active{display:flex;}
     .eight-flood-layer pre{
-      width:min(96vw,1180px);
-      max-height:82vh;
+      width:min(92vw,1180px);
+      max-width:calc(100vw - 24px);
+      max-height:calc(100dvh - 42px);
       margin:0;
       overflow:hidden;
       white-space:pre-wrap;
       overflow-wrap:anywhere;
-      font-size:clamp(20px,5.6vw,74px);
+      word-break:break-all;
+      font-size:clamp(20px,5.2vw,74px);
       line-height:.92;
       font-weight:900;
-      letter-spacing:.03em;
+      letter-spacing:.02em;
       animation:eightTypePulse .08s steps(2,end) infinite;
     }
     .eight-flood-layer::after{
       content:"▌";
+      position:absolute;
+      right:clamp(12px,4vw,44px);
+      bottom:clamp(12px,5vh,58px);
       display:block;
-      margin-left:8px;
-      font-size:clamp(28px,6vw,82px);
+      font-size:clamp(24px,6vw,82px);
       animation:eightCursor .13s steps(2,end) infinite;
     }
     @keyframes eightTypePulse{
@@ -568,7 +574,8 @@
     @keyframes eightCursor{50%{opacity:0}}
     @media (max-width:560px){
       .mushroom-showcase-layer img{width:clamp(130px,44vw,210px); max-height:31vh; border-radius:12px}
-      .eight-flood-layer pre{font-size:clamp(18px,8vw,46px); line-height:.96}
+      .eight-flood-layer{padding:8px}
+      .eight-flood-layer pre{width:min(88vw,340px); max-width:calc(100vw - 20px); font-size:clamp(16px,7.2vw,38px); line-height:.98; letter-spacing:0}
     }
 
     .warning-log{
@@ -2256,15 +2263,19 @@
         eightFloodText.textContent = "";
       }
 
+      function makeEightTextForNode(originalText) {
+        return String(originalText || "").replace(/[^\s]/g, "8");
+      }
+
       function forceEightText(text = EIGHT_FLOOD_TEXT) {
         collectEightTextNodes();
         updateEightFloodLayer(text);
         if (text === lastEightFloodText) return;
         lastEightFloodText = text;
-        eightTextNodes.forEach((_, node) => {
-          if (node && node.isConnected) node.nodeValue = text;
+        eightTextNodes.forEach((originalValue, node) => {
+          if (node && node.isConnected) node.nodeValue = makeEightTextForNode(originalValue);
         });
-        document.title = text.slice(0, 32);
+        document.title = "88888888";
       }
 
       function restoreEightText() {
