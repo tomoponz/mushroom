@@ -1287,6 +1287,123 @@
       0%,100%{filter:contrast(1.12) saturate(1.12) drop-shadow(0 0 24px rgba(116,255,77,.25));}
       50%{filter:contrast(1.35) saturate(1.45) hue-rotate(22deg) drop-shadow(0 0 36px rgba(255,16,56,.32));}
     }
+
+
+    ::selection{
+      background:#005cff;
+      color:#fff;
+      text-shadow:none;
+    }
+    .selection-secret{
+      margin:8px 0 0;
+      color:rgba(255,255,255,0.001);
+      text-shadow:none;
+      user-select:text;
+      -webkit-user-select:text;
+      font-family:"MS Gothic","Yu Gothic Mono",monospace;
+      font-size:13px;
+      line-height:1.35;
+      letter-spacing:.03em;
+    }
+    .selection-secret::selection{
+      background:#005cff;
+      color:#fff;
+      text-shadow:none;
+    }
+
+    .idiot-layer{
+      position:fixed;
+      inset:0;
+      z-index:125;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .03s linear;
+    }
+    body.fx-idiot .idiot-layer{opacity:1;}
+    .idiot-blackout-piece{
+      position:fixed;
+      display:block;
+      background:#000;
+      box-shadow:0 0 0 1px rgba(255,255,255,.02) inset;
+    }
+    .idiot-img{
+      position:fixed;
+      left:50%;
+      top:50%;
+      width:min(88vw,980px);
+      max-height:72vh;
+      object-fit:contain;
+      transform:translate(-50%,-50%);
+      filter:drop-shadow(0 0 26px rgba(255,255,255,.68)) contrast(1.25) brightness(1.15);
+      animation:idiotBlink .12s steps(2,end) infinite;
+      z-index:2;
+    }
+    @keyframes idiotBlink{
+      0%,100%{opacity:1; transform:translate(-50%,-50%) scale(1)}
+      50%{opacity:.72; transform:translate(calc(-50% + 2px),calc(-50% - 1px)) scale(1.015)}
+    }
+
+    .ad-layer{
+      position:fixed;
+      inset:0;
+      z-index:85;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .18s linear;
+      overflow:hidden;
+    }
+    body.fx-ad .ad-layer{opacity:1;}
+    .fake-ad{
+      position:absolute;
+      width:clamp(150px,18vw,300px);
+      min-height:112px;
+      padding:8px;
+      border:3px ridge #f5df67;
+      background:
+        linear-gradient(180deg,rgba(255,249,146,.96),rgba(218,35,17,.95)),
+        repeating-linear-gradient(45deg,rgba(0,0,0,.08) 0 6px,transparent 6px 12px);
+      color:#150000;
+      font-family:"MS Gothic","Yu Gothic Mono",monospace;
+      font-weight:900;
+      box-shadow:0 0 28px rgba(255,240,90,.32), 7px 7px 0 rgba(0,0,0,.46);
+      animation:adJitter .18s steps(2,end) infinite;
+      mix-blend-mode:normal;
+    }
+    .fake-ad img{
+      display:block;
+      width:100%;
+      height:auto;
+      background:#050000;
+      border:2px solid rgba(0,0,0,.78);
+      margin-bottom:6px;
+    }
+    .fake-ad strong{
+      display:block;
+      font-size:clamp(15px,1.7vw,24px);
+      line-height:1;
+    }
+    .fake-ad span{
+      display:block;
+      margin-top:4px;
+      font-size:12px;
+      line-height:1.15;
+    }
+    .fake-ad.a1{left:3vw;top:10vh;transform:rotate(-2deg)}
+    .fake-ad.a2{right:4vw;top:18vh;transform:rotate(1.4deg);animation-delay:.07s}
+    .fake-ad.a3{left:8vw;bottom:9vh;transform:rotate(1deg);animation-delay:.12s}
+    .fake-ad.a4{right:10vw;bottom:14vh;transform:rotate(-1.6deg);animation-delay:.04s}
+    @keyframes adJitter{
+      0%,100%{translate:0 0; filter:saturate(1.2)}
+      50%{translate:2px -1px; filter:saturate(1.8) hue-rotate(6deg)}
+    }
+    @media (max-width:560px){
+      .idiot-img{width:96vw;max-height:58vh}
+      .fake-ad{width:clamp(118px,36vw,168px);padding:6px;border-width:2px}
+      .fake-ad span{font-size:10px}
+      .fake-ad.a2{top:28vh;right:2vw}
+      .fake-ad.a4{right:4vw;bottom:8vh}
+    }
+
     @media (max-width:860px){
       .cross-layer{padding:8px 8px 48px; gap:1px;}
       .donald-layer{width:min(55vw,520px); opacity:0;}
@@ -1336,6 +1453,8 @@
       to{transform:translateY(128vh) rotate(var(--rot, 360deg))}
     }
 
+
+
     @media (max-width:860px){
       .content{grid-template-columns:1fr}
       .video-card{border-right:0;border-bottom:3px dashed rgba(135,81,48,.24)}
@@ -1365,6 +1484,19 @@
 <body>
   <div class="flash" id="flash" aria-hidden="true"></div>
   <div class="timeline-overlay" id="timelineOverlay" aria-hidden="true"></div>
+  <div class="idiot-layer" id="idiotLayer" aria-hidden="true">
+    <i class="idiot-blackout-piece" data-piece="top"></i>
+    <i class="idiot-blackout-piece" data-piece="left"></i>
+    <i class="idiot-blackout-piece" data-piece="right"></i>
+    <i class="idiot-blackout-piece" data-piece="bottom"></i>
+    <img class="idiot-img" src="assets/img/you-are-idiot.png" alt="">
+  </div>
+  <div class="ad-layer" id="adLayer" aria-hidden="true">
+    <div class="fake-ad a1"><img src="assets/img/you-are-idiot.png" alt=""><strong>今スグ確認</strong><span>縺薙?縺薙?無料安全診断</span></div>
+    <div class="fake-ad a2"><img src="assets/img/you-are-idiot.png" alt=""><strong>当選しました</strong><span>あなたのキノコは危険です</span></div>
+    <div class="fake-ad a3"><img src="assets/img/you-are-idiot.png" alt=""><strong>謎の広告</strong><span>閉じるボタンはありません</span></div>
+    <div class="fake-ad a4"><img src="assets/img/you-are-idiot.png" alt=""><strong>CLICK HERE</strong><span>you are an idiot / DOKO NODE</span></div>
+  </div>
   <div class="cross-layer" id="crossLayer" aria-hidden="true"></div>
   <div class="effect-backdrop" id="effectBackdrop" aria-hidden="true"></div>
   <div class="bg-video-layer" id="bgVideoLayer" aria-hidden="true">
@@ -1454,6 +1586,7 @@
           <p class="caption glitch-text" data-clean="さいしょは、たのしいキノコのうた。再生ボタンを押すと、きのこの奥にある別の部屋が開きます。">
             さいしょは、たのしいキノコのうた。再生ボタンを押すと、きのこの奥にある別の部屋が開きます。
           </p>
+          <p class="selection-secret">選択した者だけに見える：ここは子供向けではない。ドコノコノキノコは、まだこちらを見ている。</p>
         </div>
 
         <aside class="side">
@@ -1466,6 +1599,7 @@
             <button class="cute-btn" id="panicBtn" type="button">▶ あそぶ</button>
             <a class="cute-btn secondary" href="https://tomoponz.github.io/shell.html?p=gallery.html">ネタ置き場へ戻る</a>
           </div>
+          <p class="selection-secret">drag to read: you selected the wrong layer. 88888888 is waiting under the cute skin.</p>
         </aside>
       </div>
     </section>
@@ -1490,6 +1624,8 @@
       const TAB_STORM_IMAGE = "assets/img/393.png";
       const TAB_STORM_END_IMAGE = "assets/img/393-end.png";
       const EYE_CLICK_IMAGE = "assets/img/eye-clicked.png";
+      const YOU_ARE_IDIOT_IMAGE = "assets/img/you-are-idiot.png";
+      const EIGHT_FLOOD_TEXT = "888888888888888888888888888888888888888888888888888888888888888888888888";
       const RUNNER_VIDEO = "assets/video/orga-runner-bb.mp4";
       const BG_TIMELINE_VIDEO = "assets/video/bg-0105.mp4";
       const coverThumb = document.getElementById("coverThumb");
@@ -1499,6 +1635,9 @@
       const panicBtn = document.getElementById("panicBtn");
       const flash = document.getElementById("flash");
       const timelineOverlay = document.getElementById("timelineOverlay");
+      const idiotLayer = document.getElementById("idiotLayer");
+      const idiotPieces = Array.from(document.querySelectorAll(".idiot-blackout-piece"));
+      const adLayer = document.getElementById("adLayer");
       const crossLayer = document.getElementById("crossLayer");
       const effectBackdrop = document.getElementById("effectBackdrop");
       const bgVideoLayer = document.getElementById("bgVideoLayer");
@@ -1561,6 +1700,7 @@
         EYE_CLICK_IMAGE,
         TAB_STORM_IMAGE,
         TAB_STORM_END_IMAGE,
+        YOU_ARE_IDIOT_IMAGE,
         ...MUSHROOM_RAIN_IMAGES
       ]);
       const logLines = [
@@ -1589,6 +1729,8 @@
         "fx-heartbeat",
         "fx-mosaic",
         "fx-colorbar",
+        "fx-idiot",
+        "fx-ad",
         "fx-chroma-donald",
         "fx-chroma-starmie",
         "fx-chroma-runner"
@@ -1639,6 +1781,8 @@
 
       const timelineClassWindows = [
         { start: 5, end: 7, key: "heartbeat-005", className: "fx-heartbeat", label: "0:05 HEARTBEAT" },
+        { start: 50, end: 50.82, key: "idiot-050", className: "fx-idiot", label: "0:50 YOU ARE IDIOT" },
+        { start: 71, end: 84, key: "ad-111", className: "fx-ad", label: "1:11 STRANGE AD" },
         { start: 32, end: 35, key: "flicker-032", className: "fx-flicker", label: "0:32 FLICKER" },
         { start: 67, end: 70, key: "mosaic-107", className: "fx-mosaic", label: "1:07 CLASSIC MOSAIC" }
       ];
@@ -1861,9 +2005,9 @@
       function forceEightText() {
         collectEightTextNodes();
         eightTextNodes.forEach((_, node) => {
-          if (node && node.isConnected) node.nodeValue = "88888888";
+          if (node && node.isConnected) node.nodeValue = EIGHT_FLOOD_TEXT;
         });
-        document.title = "88888888";
+        document.title = EIGHT_FLOOD_TEXT.slice(0, 32);
       }
 
       function restoreEightText() {
@@ -1973,6 +2117,16 @@
         setPieceRect(pieceMap.bottom, 0, safe.bottom, safe.viewportWidth, safe.viewportHeight - safe.bottom);
       }
 
+      function updateIdiotMask() {
+        if (!idiotLayer || !idiotPieces.length) return;
+        const safe = getVideoSafeRect(4);
+        const pieceMap = Object.fromEntries(idiotPieces.map((piece) => [piece.dataset.piece, piece]));
+        setPieceRect(pieceMap.top, 0, 0, safe.viewportWidth, safe.top);
+        setPieceRect(pieceMap.left, 0, safe.top, safe.left, safe.bottom - safe.top);
+        setPieceRect(pieceMap.right, safe.right, safe.top, safe.viewportWidth - safe.right, safe.bottom - safe.top);
+        setPieceRect(pieceMap.bottom, 0, safe.bottom, safe.viewportWidth, safe.viewportHeight - safe.bottom);
+      }
+
       function updateChromaSafeLayout() {
         const safe = getVideoSafeRect(14);
         const viewportWidth = safe.viewportWidth;
@@ -2005,6 +2159,7 @@
 
       function updateProtectedVisualZones() {
         updateMosaicMask();
+        updateIdiotMask();
         updateChromaSafeLayout();
         updateRunnerSafeLayout();
         updateMemeSafeLayout();
@@ -2749,6 +2904,7 @@
             document.body.classList.add(item.className);
             activeTimedClasses.add(item.className);
             if (item.className === "fx-mosaic") updateMosaicMask();
+            if (item.className === "fx-idiot") updateIdiotMask();
             writeLog(item.label);
           } else if (!shouldBeActive && isActive) {
             document.body.classList.remove(item.className);
@@ -2808,6 +2964,7 @@
         const needsProtectedZoneUpdate =
           document.body.classList.contains("fx-mosaic") ||
           document.body.classList.contains("fx-eyes") ||
+          document.body.classList.contains("fx-idiot") ||
           Boolean(document.querySelector(".chroma-layer.active"));
 
         if (needsProtectedZoneUpdate && now - lastProtectedZoneUpdate > 0.18) {
