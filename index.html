@@ -102,7 +102,6 @@
     .eye-under-layer{z-index:86; opacity:0; transition:opacity .12s linear}
     .eye-layer{z-index:87; opacity:0; transition:opacity .12s linear}
     body.fx-eyes .eye-under-layer{opacity:.98}
-    body.fx-eyes .eye-layer{pointer-events:none}
     .tab-storm-layer{z-index:96; opacity:0; transition:opacity .08s linear}
     .tab-storm-layer.active{opacity:1}
 
@@ -1445,10 +1444,20 @@
       50%{opacity:.72; transform:translate(calc(-50% + 2px),calc(-50% - 1px)) scale(1.015)}
     }
 
+    @keyframes adJitter{
+      0%,100%{translate:0 0; filter:saturate(1.2)}
+      50%{translate:2px -1px; filter:saturate(1.8) hue-rotate(6deg)}
+    }
+    @media (max-width:560px){
+      .idiot-img{width:96vw;max-height:58vh}
+    }
+
+
+    /* ===== scam ad image + side loop video ===== */
     .ad-layer{
       position:fixed;
       inset:0;
-      z-index:85;
+      z-index:94;
       pointer-events:none;
       opacity:0;
       transition:opacity .18s linear;
@@ -1457,86 +1466,32 @@
     body.fx-ad .ad-layer{opacity:1;}
     .fake-ad{
       position:absolute;
-      width:clamp(150px,18vw,300px);
-      min-height:112px;
-      padding:8px;
-      border:3px ridge #f5df67;
-      background:
-        linear-gradient(180deg,rgba(255,249,146,.96),rgba(218,35,17,.95)),
-        repeating-linear-gradient(45deg,rgba(0,0,0,.08) 0 6px,transparent 6px 12px);
-      color:#150000;
-      font-family:"MS Gothic","Yu Gothic Mono",monospace;
-      font-weight:900;
-      box-shadow:0 0 28px rgba(255,240,90,.32), 7px 7px 0 rgba(0,0,0,.46);
-      animation:adJitter .18s steps(2,end) infinite;
+      width:min(86vw,780px);
+      min-height:0;
+      padding:0;
+      border:0;
+      background:transparent;
+      box-shadow:0 0 34px rgba(255,240,90,.42), 8px 8px 0 rgba(0,0,0,.48);
+      overflow:visible;
+      animation:adJitter .14s steps(2,end) infinite;
       mix-blend-mode:normal;
     }
     .fake-ad img{
-      display:block;
       width:100%;
       height:auto;
-      background:#050000;
-      border:2px solid rgba(0,0,0,.78);
-      margin-bottom:6px;
-    }
-    .fake-ad strong{
       display:block;
-      font-size:clamp(15px,1.7vw,24px);
-      line-height:1;
-    }
-    .fake-ad span{
-      display:block;
-      margin-top:4px;
-      font-size:12px;
-      line-height:1.15;
-    }
-    .fake-ad.a1{left:3vw;top:10vh;transform:rotate(-2deg)}
-    .fake-ad.a2{right:4vw;top:18vh;transform:rotate(1.4deg);animation-delay:.07s}
-    .fake-ad.a3{left:8vw;bottom:9vh;transform:rotate(1deg);animation-delay:.12s}
-    .fake-ad.a4{right:10vw;bottom:14vh;transform:rotate(-1.6deg);animation-delay:.04s}
-    @keyframes adJitter{
-      0%,100%{translate:0 0; filter:saturate(1.2)}
-      50%{translate:2px -1px; filter:saturate(1.8) hue-rotate(6deg)}
-    }
-    @media (max-width:560px){
-      .idiot-img{width:96vw;max-height:58vh}
-      .fake-ad{width:clamp(118px,36vw,168px);padding:6px;border-width:2px}
-      .fake-ad span{font-size:10px}
-      .fake-ad.a2{top:28vh;right:2vw}
-      .fake-ad.a4{right:4vw;bottom:8vh}
-    }
-
-
-    /* ===== latest: scam ad image + side loop video ===== */
-    .ad-layer{
-      z-index:94;
-    }
-    .fake-ad{
-      width:min(86vw,780px) !important;
-      min-height:0 !important;
-      padding:0 !important;
-      border:0 !important;
-      background:transparent !important;
-      box-shadow:0 0 34px rgba(255,240,90,.42), 8px 8px 0 rgba(0,0,0,.48) !important;
-      overflow:visible;
-      animation:adJitter .14s steps(2,end) infinite !important;
-    }
-    .fake-ad img{
-      width:100% !important;
-      height:auto !important;
-      display:block !important;
       border:3px ridge #ffe764;
-      background:transparent !important;
+      background:transparent;
       filter:contrast(1.08) saturate(1.18) drop-shadow(0 0 18px rgba(255,255,255,.22));
     }
     .fake-ad strong,
     .fake-ad span{
-      display:none !important;
+      display:none;
     }
-    .fake-ad.a1{left:50%;top:12%;width:min(84vw,760px) !important;transform:translateX(-50%) rotate(-1.2deg)}
-    .fake-ad.a2{right:2vw;top:34%;width:min(52vw,600px) !important;transform:rotate(1deg)}
-    .fake-ad.a3{left:2vw;bottom:16%;width:min(50vw,580px) !important;transform:rotate(.7deg)}
-    .fake-ad.a4{right:5vw;bottom:6%;width:min(58vw,660px) !important;transform:rotate(-1deg)}
+    .fake-ad.a1{left:50%;top:12%;width:min(84vw,760px);transform:translateX(-50%) rotate(-1.2deg)}
+    .fake-ad.a2{right:2vw;top:34%;width:min(52vw,600px);transform:rotate(1deg)}
+    .fake-ad.a3{left:2vw;bottom:16%;width:min(50vw,580px);transform:rotate(.7deg)}
+    .fake-ad.a4{right:5vw;bottom:6%;width:min(58vw,660px);transform:rotate(-1deg)}
 
     .side-loop-layer{
       position:fixed;
@@ -1619,11 +1574,11 @@
       50%{filter:brightness(.58) contrast(1.32) saturate(.82)}
     }
     @media (max-width:560px){
-      .fake-ad{width:min(90vw,460px) !important;}
-      .fake-ad.a1{top:8%;width:88vw !important;}
-      .fake-ad.a2{top:33%;width:72vw !important;right:2vw;}
-      .fake-ad.a3{left:2vw;bottom:18%;width:72vw !important;}
-      .fake-ad.a4{right:4vw;bottom:6%;width:76vw !important;}
+      .fake-ad{width:min(90vw,460px);}
+      .fake-ad.a1{top:8%;width:88vw;}
+      .fake-ad.a2{top:33%;width:72vw;right:2vw;}
+      .fake-ad.a3{left:2vw;bottom:18%;width:72vw;}
+      .fake-ad.a4{right:4vw;bottom:6%;width:76vw;}
       .side-loop-layer.active{opacity:.82;}
       .side-loop-video{width:clamp(110px,42vw,190px);}
     }
@@ -1866,8 +1821,6 @@
       ]);
       const SIDE_LOOP_VIDEO = "assets/video/side-loop.mp4";
       const EIGHT_FLOOD_TEXT = "8".repeat(240);
-      const RUNNER_VIDEO = "assets/video/orga-runner-bb.mp4";
-      const BG_TIMELINE_VIDEO = "assets/video/bg-0105.mp4";
       const coverThumb = document.getElementById("coverThumb");
       const thumbOverlay = document.getElementById("thumbOverlay");
       const videoShell = document.getElementById("videoShell");
@@ -1989,8 +1942,7 @@
         "fx-ad",
         "fx-chroma-donald",
         "fx-chroma-starmie",
-        "fx-chroma-runner",
-        "fx-side-loop"
+        "fx-chroma-runner"
       ];
 
       let glitchRate = 0.08;
@@ -2010,7 +1962,6 @@
       let tabStormActive = false;
       let tabStormTimer = null;
       let crossLayerCount = -1;
-      let runnerActive = false;
       let eightTextActive = false;
       let bgVideoActive = false;
       let bgVideoLastSync = 0;
@@ -2513,31 +2464,29 @@
         const reimuH = reimuW * .75;
         const narutoH = narutoW;
 
-        const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-
         setChromaBox(catDanceLayer,
           margin,
-          clamp(vh * (compact ? 0.055 : 0.045), margin, Math.max(margin, vh - bottomGuard - catH)),
+          clampValue(vh * (compact ? 0.055 : 0.045), margin, Math.max(margin, vh - bottomGuard - catH)),
           catW, catH);
 
         setChromaBox(popCatLayer,
           margin + vw * .02,
-          clamp(vh - bottomGuard - popH - (compact ? 12 : 26), margin, Math.max(margin, vh - bottomGuard - popH)),
+          clampValue(vh - bottomGuard - popH - (compact ? 12 : 26), margin, Math.max(margin, vh - bottomGuard - popH)),
           popW, popH);
 
         setChromaBox(chipiCatLayer,
-          clamp(vw * (compact ? 0.43 : 0.47) - chipiW / 2, margin, Math.max(margin, vw - chipiW - margin)),
-          clamp(vh - bottomGuard - chipiH - (compact ? 4 : 10), margin, Math.max(margin, vh - bottomGuard - chipiH)),
+          clampValue(vw * (compact ? 0.43 : 0.47) - chipiW / 2, margin, Math.max(margin, vw - chipiW - margin)),
+          clampValue(vh - bottomGuard - chipiH - (compact ? 4 : 10), margin, Math.max(margin, vh - bottomGuard - chipiH)),
           chipiW, chipiH);
 
         setChromaBox(reimuLayer,
-          clamp(margin + vw * (compact ? 0.02 : 0.035), margin, Math.max(margin, vw - reimuW - margin)),
-          clamp(vh * (compact ? 0.42 : 0.39), margin, Math.max(margin, vh - bottomGuard - reimuH)),
+          clampValue(margin + vw * (compact ? 0.02 : 0.035), margin, Math.max(margin, vw - reimuW - margin)),
+          clampValue(vh * (compact ? 0.42 : 0.39), margin, Math.max(margin, vh - bottomGuard - reimuH)),
           reimuW, reimuH);
 
         setChromaBox(narutoLayer,
-          clamp(vw * (compact ? 0.58 : 0.47), margin, Math.max(margin, vw - narutoW - margin)),
-          clamp(vh * (compact ? 0.05 : 0.04), margin, Math.max(margin, vh - bottomGuard - narutoH)),
+          clampValue(vw * (compact ? 0.58 : 0.47), margin, Math.max(margin, vw - narutoW - margin)),
+          clampValue(vh * (compact ? 0.05 : 0.04), margin, Math.max(margin, vh - bottomGuard - narutoH)),
           narutoW, narutoH);
       }
 
@@ -3062,10 +3011,6 @@
       }
 
 
-      function startRunnerLayer(_label) {
-        // Runner is now handled by the shared chroma actor pipeline.
-      }
-
       function stopRunnerLayer() {
         stopChromaActor("runner");
         document.body.classList.remove("fx-chroma-runner");
@@ -3159,7 +3104,6 @@
       function stopSideLoop() {
         sideLoopActive = false;
         sideLoopLastSync = 0;
-        document.body.classList.remove("fx-side-loop");
         sideLoopLayer?.classList.remove("active");
         [sideLoopLeftVideo, sideLoopRightVideo].forEach((video) => {
           if (!video) return;
@@ -3180,7 +3124,6 @@
         const targetTime = Math.max(0, now - win.start);
         if (!sideLoopActive) {
           sideLoopActive = true;
-          document.body.classList.add("fx-side-loop");
           sideLoopLayer?.classList.add("active");
           updateSideLoopLayout();
           videos.forEach((video) => {
@@ -3195,16 +3138,17 @@
           return;
         }
 
+        let didSync = false;
         videos.forEach((video) => {
           if (Number.isFinite(video.duration) && video.duration > 0) {
             const expected = targetTime % video.duration;
             if (Math.abs((video.currentTime || 0) - expected) > .55 || Math.abs(now - sideLoopLastSync) > 1.8) {
-              try { video.currentTime = expected; } catch (_) {}
+              try { video.currentTime = expected; didSync = true; } catch (_) {}
             }
           }
           if (video.paused) video.play().catch(() => {});
         });
-        sideLoopLastSync = now;
+        if (didSync) sideLoopLastSync = now;
       }
 
       function resetTimelineForReplay() {
@@ -3438,7 +3382,7 @@
           document.body.classList.contains("fx-mosaic") ||
           document.body.classList.contains("fx-eyes") ||
           document.body.classList.contains("fx-idiot") ||
-          document.body.classList.contains("fx-side-loop") ||
+          sideLoopActive ||
           Boolean(document.querySelector(".chroma-layer.active"));
 
         if (needsProtectedZoneUpdate && now - lastProtectedZoneUpdate > 0.18) {
@@ -3466,14 +3410,20 @@
         glitchRate = Math.min(0.72, 0.18 + now / 230);
       }
 
+      function timelineLoop() {
+        if (!timelineTimer) return;
+        checkTimeline();
+        timelineTimer = requestAnimationFrame(timelineLoop);
+      }
+
       function startTimelineMonitor() {
-        if (timelineTimer) clearInterval(timelineTimer);
-        timelineTimer = setInterval(checkTimeline, 50);
+        if (timelineTimer) return;
+        timelineTimer = requestAnimationFrame(timelineLoop);
       }
 
       function stopTimelineMonitor() {
         if (timelineTimer) {
-          clearInterval(timelineTimer);
+          cancelAnimationFrame(timelineTimer);
           timelineTimer = null;
         }
       }
@@ -3530,7 +3480,6 @@
               playerReady = true;
               writeLog("[YT_API] Player ready");
               try { event.target.playVideo(); } catch (_) {}
-              startTimelineMonitor();
             },
             onStateChange: (event) => {
               if (!window.YT || !window.YT.PlayerState) return;
@@ -3539,6 +3488,8 @@
               } else if (event.data === YT.PlayerState.ENDED) {
                 stopTimelineMonitor();
                 endToCorruptedIdle();
+              } else {
+                stopTimelineMonitor();
               }
             },
             onError: () => {
