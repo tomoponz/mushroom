@@ -1512,12 +1512,12 @@
       z-index:94;
     }
     .fake-ad{
-      width:min(92vw,980px) !important;
+      width:min(86vw,780px) !important;
       min-height:0 !important;
       padding:0 !important;
       border:0 !important;
       background:transparent !important;
-      box-shadow:0 0 42px rgba(255,240,90,.46), 10px 10px 0 rgba(0,0,0,.52) !important;
+      box-shadow:0 0 34px rgba(255,240,90,.42), 8px 8px 0 rgba(0,0,0,.48) !important;
       overflow:visible;
       animation:adJitter .14s steps(2,end) infinite !important;
     }
@@ -1533,10 +1533,10 @@
     .fake-ad span{
       display:none !important;
     }
-    .fake-ad.a1{left:50%;top:13%;transform:translateX(-50%) rotate(-1.2deg)}
-    .fake-ad.a2{right:2vw;top:35%;width:min(62vw,740px) !important;transform:rotate(1deg)}
-    .fake-ad.a3{left:2vw;bottom:13%;width:min(58vw,700px) !important;transform:rotate(.7deg)}
-    .fake-ad.a4{right:5vw;bottom:5%;width:min(70vw,820px) !important;transform:rotate(-1deg)}
+    .fake-ad.a1{left:50%;top:12%;width:min(84vw,760px) !important;transform:translateX(-50%) rotate(-1.2deg)}
+    .fake-ad.a2{right:2vw;top:34%;width:min(52vw,600px) !important;transform:rotate(1deg)}
+    .fake-ad.a3{left:2vw;bottom:16%;width:min(50vw,580px) !important;transform:rotate(.7deg)}
+    .fake-ad.a4{right:5vw;bottom:6%;width:min(58vw,660px) !important;transform:rotate(-1deg)}
 
     .side-loop-layer{
       position:fixed;
@@ -1570,12 +1570,60 @@
       0%,100%{filter:contrast(1.05) saturate(1.08); translate:0 0}
       50%{filter:contrast(1.25) saturate(1.45) hue-rotate(8deg); translate:1px -1px}
     }
+
+    /* 1:52〜3:15: video以外を暗く不気味にする後半背景 */
+    body.fx-late-dark{
+      background:
+        radial-gradient(circle at 18% 20%, rgba(80,0,22,.32), transparent 34%),
+        radial-gradient(circle at 84% 76%, rgba(35,90,44,.20), transparent 36%),
+        linear-gradient(180deg,#010102,#050007 46%,#000) !important;
+      animation:lateDarkPulse .8s steps(2,end) infinite !important;
+    }
+    body.fx-late-dark .effect-backdrop{
+      opacity:.86;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 6px),
+        radial-gradient(circle at 50% 45%, rgba(116,255,77,.08), transparent 35%),
+        radial-gradient(circle at 12% 88%, rgba(255,16,56,.18), transparent 28%),
+        linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.88));
+      filter:contrast(1.28) saturate(.72) brightness(.62);
+      transition:opacity .34s linear;
+    }
+    body.fx-late-dark .panel{
+      background:rgba(0,0,0,.64);
+      box-shadow:0 0 80px rgba(0,0,0,.72), inset 0 0 0 1px rgba(116,255,77,.12);
+    }
+    body.fx-late-dark .cute-head,
+    body.fx-late-dark .side{
+      background:rgba(0,0,0,.46);
+    }
+    body.fx-late-dark .thumb-shell,
+    body.fx-late-dark #player{
+      filter:none !important;
+      opacity:1 !important;
+    }
+    body.fx-late-dark .caption,
+    body.fx-late-dark .side p,
+    body.fx-late-dark .marquee{
+      filter:brightness(.72) contrast(1.15);
+    }
+    body.fx-late-dark::before{
+      opacity:.34;
+      background:
+        repeating-linear-gradient(90deg, rgba(255,16,56,.11) 0 1px, transparent 1px 18px),
+        repeating-linear-gradient(0deg, rgba(116,255,77,.08) 0 1px, transparent 1px 22px);
+      mix-blend-mode:screen;
+    }
+    @keyframes lateDarkPulse{
+      0%,100%{filter:brightness(.84) contrast(1.15)}
+      50%{filter:brightness(.58) contrast(1.32) saturate(.82)}
+    }
     @media (max-width:560px){
-      .fake-ad{width:min(96vw,520px) !important;}
-      .fake-ad.a1{top:9%;}
-      .fake-ad.a2{top:34%;width:82vw !important;right:2vw;}
-      .fake-ad.a3{left:2vw;bottom:16%;width:80vw !important;}
-      .fake-ad.a4{right:4vw;bottom:5%;width:84vw !important;}
+      .fake-ad{width:min(90vw,460px) !important;}
+      .fake-ad.a1{top:8%;width:88vw !important;}
+      .fake-ad.a2{top:33%;width:72vw !important;right:2vw;}
+      .fake-ad.a3{left:2vw;bottom:18%;width:72vw !important;}
+      .fake-ad.a4{right:4vw;bottom:6%;width:76vw !important;}
       .side-loop-layer.active{opacity:.82;}
       .side-loop-video{width:clamp(110px,42vw,190px);}
     }
@@ -1669,9 +1717,9 @@
   </div>
   <div class="ad-layer" id="adLayer" aria-hidden="true">
     <div class="fake-ad a1"><img src="assets/img/scam-ad.png" alt=""></div>
-    <div class="fake-ad a2"><img src="assets/img/scam-ad.png" alt=""></div>
-    <div class="fake-ad a3"><img src="assets/img/scam-ad.png" alt=""></div>
-    <div class="fake-ad a4"><img src="assets/img/scam-ad.png" alt=""></div>
+    <div class="fake-ad a2"><img src="assets/img/scam-ad-2.webp" alt=""></div>
+    <div class="fake-ad a3"><img src="assets/img/scam-ad-3.webp" alt=""></div>
+    <div class="fake-ad a4"><img src="assets/img/scam-ad-4.webp" alt=""></div>
   </div>
   <div class="cross-layer" id="crossLayer" aria-hidden="true"></div>
   <div class="effect-backdrop" id="effectBackdrop" aria-hidden="true"></div>
@@ -1810,7 +1858,12 @@
       const TAB_STORM_END_IMAGE = "assets/img/393-end.png";
       const EYE_CLICK_IMAGE = "assets/img/eye-clicked.png";
       const YOU_ARE_IDIOT_IMAGE = "assets/img/you-are-idiot.png";
-      const SCAM_AD_IMAGE = "assets/img/scam-ad.png";
+      const SCAM_AD_IMAGES = Object.freeze([
+        "assets/img/scam-ad.png",
+        "assets/img/scam-ad-2.webp",
+        "assets/img/scam-ad-3.webp",
+        "assets/img/scam-ad-4.webp"
+      ]);
       const SIDE_LOOP_VIDEO = "assets/video/side-loop.mp4";
       const EIGHT_FLOOD_TEXT = "8".repeat(240);
       const RUNNER_VIDEO = "assets/video/orga-runner-bb.mp4";
@@ -1901,7 +1954,7 @@
         TAB_STORM_IMAGE,
         TAB_STORM_END_IMAGE,
         YOU_ARE_IDIOT_IMAGE,
-        SCAM_AD_IMAGE,
+        ...SCAM_AD_IMAGES,
         ...MUSHROOM_SHOWCASE_IMAGES.map((item) => item.src),
         ...MUSHROOM_RAIN_IMAGES
       ]);
@@ -1927,6 +1980,7 @@
         "fx-taisho",
         "fx-optical",
         "fx-wave",
+        "fx-late-dark",
         "fx-flicker",
         "fx-heartbeat",
         "fx-mosaic",
@@ -1983,6 +2037,7 @@
         { start: 86.3, end: 95, key: "optical-1263", className: "fx-optical", label: "1:26.3 OPTICAL" },
         { start: 95, end: 107, key: "black-noise-135", className: "fx-black-noise", label: "1:35 BLACK NOISE" },
         { start: 107, end: 112, key: "wave-147", className: "fx-wave", label: "1:47 WAVEFORM" },
+        { start: 112, end: 195, key: "late-dark-152", className: "fx-late-dark", label: "1:52 LATE DARK FIELD" },
         { start: 195, end: 99999, key: "colorbar-315", className: "fx-colorbar", label: "3:15 COLOR BARS" }
       ];
 
