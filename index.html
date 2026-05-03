@@ -478,6 +478,100 @@
       .face-eye-img{width:clamp(84px,22vw,138px)}
     }
 
+
+
+    .mushroom-showcase-layer{
+      position:fixed;
+      inset:0;
+      z-index:85;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .10s linear;
+      overflow:hidden;
+      mix-blend-mode:screen;
+    }
+    .mushroom-showcase-layer.active{opacity:1;}
+    .mushroom-showcase-layer img{
+      position:fixed;
+      width:clamp(170px,30vw,430px);
+      max-height:44vh;
+      object-fit:cover;
+      border:3px solid rgba(255,255,255,.72);
+      border-radius:18px;
+      box-shadow:
+        0 0 0 4px rgba(255,16,56,.28),
+        0 0 44px rgba(116,255,77,.38),
+        0 0 72px rgba(157,64,255,.30);
+      filter:saturate(3.8) contrast(1.45) brightness(1.12) hue-rotate(var(--mush-hue, 0deg));
+      animation:showcaseChaos .28s steps(2,end) infinite;
+      transform-origin:center;
+      user-select:none;
+      -webkit-user-drag:none;
+    }
+    .mushroom-showcase-layer::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        repeating-linear-gradient(90deg, rgba(255,16,56,.30) 0 2px, transparent 2px 11px),
+        repeating-linear-gradient(0deg, rgba(116,255,77,.20) 0 1px, transparent 1px 7px);
+      opacity:.32;
+      mix-blend-mode:color-dodge;
+      animation:showcaseScan .18s steps(2,end) infinite;
+    }
+    @keyframes showcaseChaos{
+      0%,100%{transform:translate(0,0) scale(1) rotate(-1deg)}
+      33%{transform:translate(3px,-2px) scale(1.035) rotate(1deg)}
+      66%{transform:translate(-2px,2px) scale(.985) rotate(0deg)}
+    }
+    @keyframes showcaseScan{to{transform:translate(9px,-7px)}}
+
+    .eight-flood-layer{
+      position:fixed;
+      inset:0;
+      z-index:97;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      pointer-events:none;
+      padding:18px;
+      background:rgba(0,0,0,.40);
+      color:#f7ffe9;
+      font-family:"MS Gothic","Yu Gothic Mono",monospace;
+      text-shadow:2px 0 rgba(255,16,56,.92), -2px 0 rgba(116,255,77,.75), 0 0 24px rgba(247,255,233,.48);
+      mix-blend-mode:screen;
+    }
+    .eight-flood-layer.active{display:flex;}
+    .eight-flood-layer pre{
+      width:min(96vw,1180px);
+      max-height:82vh;
+      margin:0;
+      overflow:hidden;
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      font-size:clamp(20px,5.6vw,74px);
+      line-height:.92;
+      font-weight:900;
+      letter-spacing:.03em;
+      animation:eightTypePulse .08s steps(2,end) infinite;
+    }
+    .eight-flood-layer::after{
+      content:"▌";
+      display:block;
+      margin-left:8px;
+      font-size:clamp(28px,6vw,82px);
+      animation:eightCursor .13s steps(2,end) infinite;
+    }
+    @keyframes eightTypePulse{
+      0%,100%{filter:brightness(1) contrast(1.3)}
+      50%{filter:brightness(1.85) contrast(2.05)}
+    }
+    @keyframes eightCursor{50%{opacity:0}}
+    @media (max-width:560px){
+      .mushroom-showcase-layer img{width:clamp(130px,44vw,210px); max-height:31vh; border-radius:12px}
+      .eight-flood-layer pre{font-size:clamp(18px,8vw,46px); line-height:.96}
+    }
+
     .warning-log{
       position:fixed;
       left:14px;
@@ -1584,6 +1678,11 @@
   <div class="bg-video-layer" id="bgVideoLayer" aria-hidden="true">
     <video id="bgTimelineVideo" src="assets/video/bg-0105.mp4" muted loop playsinline preload="metadata"></video>
   </div>
+
+  <div class="mushroom-showcase-layer" id="mushroomShowcaseLayer" aria-hidden="true">
+    <img id="mushroomShowcaseImage" src="" alt="">
+  </div>
+  <div class="eight-flood-layer" id="eightFloodLayer" aria-hidden="true"><pre id="eightFloodText"></pre></div>
   <div class="side-loop-layer" id="sideLoopLayer" aria-hidden="true">
     <video class="side-loop-video left" id="sideLoopLeftVideo" src="assets/video/side-loop.mp4" muted loop playsinline preload="metadata"></video>
     <video class="side-loop-video right" id="sideLoopRightVideo" src="assets/video/side-loop.mp4" muted loop playsinline preload="metadata"></video>
@@ -1730,6 +1829,10 @@
       const effectBackdrop = document.getElementById("effectBackdrop");
       const bgVideoLayer = document.getElementById("bgVideoLayer");
       const bgTimelineVideo = document.getElementById("bgTimelineVideo");
+      const mushroomShowcaseLayer = document.getElementById("mushroomShowcaseLayer");
+      const mushroomShowcaseImage = document.getElementById("mushroomShowcaseImage");
+      const eightFloodLayer = document.getElementById("eightFloodLayer");
+      const eightFloodText = document.getElementById("eightFloodText");
       const sideLoopLayer = document.getElementById("sideLoopLayer");
       const sideLoopLeftVideo = document.getElementById("sideLoopLeftVideo");
       const sideLoopRightVideo = document.getElementById("sideLoopRightVideo");
@@ -1779,6 +1882,12 @@
         "assets/img/mushroom6.png",
         "assets/img/mushroom7.png"
       ]);
+      const MUSHROOM_SHOWCASE_IMAGES = Object.freeze([
+        { src: "assets/img/sarunokoshikake.webp", label: "0:13 SARUNOKOSHIKAKE", hue: 0 },
+        { src: "assets/img/kitunenotyabukuro.webp", label: "0:14 KITUNENOTYABUKURO", hue: 86 },
+        { src: "assets/img/matutake.webp", label: "0:15 MATUTAKE", hue: 173 },
+        { src: "assets/img/siitake.webp", label: "0:16 SIITAKE", hue: 249 }
+      ]);
       const PRELOAD_IMAGES = Object.freeze([
         "assets/img/psychedelic.png",
         "assets/img/splatter.png",
@@ -1793,6 +1902,7 @@
         TAB_STORM_END_IMAGE,
         YOU_ARE_IDIOT_IMAGE,
         SCAM_AD_IMAGE,
+        ...MUSHROOM_SHOWCASE_IMAGES.map((item) => item.src),
         ...MUSHROOM_RAIN_IMAGES
       ]);
       const logLines = [
@@ -1852,6 +1962,8 @@
       let bgVideoLastSync = 0;
       let sideLoopActive = false;
       let sideLoopLastSync = 0;
+      let lastEightFloodText = "";
+      let lastMushroomShowcaseKey = "";
       const eightTextNodes = new Map();
       const activeTimedClasses = new Set();
 
@@ -1878,8 +1990,15 @@
         { start: 5, end: 7, key: "heartbeat-005", className: "fx-heartbeat", label: "0:05 HEARTBEAT" },
         { start: 50, end: 50.82, key: "idiot-050", className: "fx-idiot", label: "0:50 YOU ARE IDIOT" },
         { start: 71, end: 84, key: "ad-111", className: "fx-ad", label: "1:11 STRANGE AD" },
-        { start: 33, end: 36, key: "flicker-033", className: "fx-flicker", label: "0:33 FLICKER" },
+        { start: 33, end: 35, key: "flicker-033", className: "fx-flicker", label: "0:33 FLICKER" },
         { start: 67, end: 70, key: "mosaic-107", className: "fx-mosaic", label: "1:07 CLASSIC MOSAIC" }
+      ];
+
+      const timelineMushroomShowcaseWindows = [
+        { start: 13, end: 14, key: "showcase-sarunokoshikake", index: 0 },
+        { start: 14, end: 15, key: "showcase-kitunenotyabukuro", index: 1 },
+        { start: 15, end: 16, key: "showcase-matutake", index: 2 },
+        { start: 16, end: 17, key: "showcase-siitake", index: 3 }
       ];
 
       const timelineRainWindows = [
@@ -2087,7 +2206,7 @@
         const parent = node?.parentElement;
         if (!parent) return false;
         if (!node.nodeValue || !node.nodeValue.trim()) return false;
-        if (parent.closest("script,style,video,canvas,.rain-layer,.eye-layer,.eye-under-layer,.tab-storm-layer,.cross-layer,.mosaic-layer")) return false;
+        if (parent.closest("script,style,video,canvas,.rain-layer,.eye-layer,.eye-under-layer,.tab-storm-layer,.cross-layer,.mosaic-layer,.eight-flood-layer,.mushroom-showcase-layer")) return false;
         return true;
       }
 
@@ -2105,12 +2224,33 @@
 
       function getEightFloodTypingText(now, start = 54.8, end = 55.8) {
         const progress = Math.max(0, Math.min(1, (now - start) / Math.max(0.001, end - start)));
-        const count = Math.max(12, Math.min(240, Math.floor(12 + progress * 228)));
+        const count = Math.max(24, Math.min(640, Math.floor(24 + progress * 616)));
         return "8".repeat(count);
+      }
+
+      function formatEightFloodText(text) {
+        const raw = String(text || "");
+        const chunk = window.innerWidth < 560 ? 12 : 24;
+        const lines = [];
+        for (let i = 0; i < raw.length; i += chunk) lines.push(raw.slice(i, i + chunk));
+        return lines.join("\n");
+      }
+
+      function updateEightFloodLayer(text) {
+        if (!eightFloodLayer || !eightFloodText) return;
+        eightFloodLayer.classList.add("active");
+        eightFloodText.textContent = formatEightFloodText(text);
+      }
+
+      function hideEightFloodLayer() {
+        if (!eightFloodLayer || !eightFloodText) return;
+        eightFloodLayer.classList.remove("active");
+        eightFloodText.textContent = "";
       }
 
       function forceEightText(text = EIGHT_FLOOD_TEXT) {
         collectEightTextNodes();
+        updateEightFloodLayer(text);
         if (text === lastEightFloodText) return;
         lastEightFloodText = text;
         eightTextNodes.forEach((_, node) => {
@@ -2125,6 +2265,7 @@
         });
         eightTextNodes.clear();
         lastEightFloodText = "";
+        hideEightFloodLayer();
         glitchTargets.forEach((target) => {
           if (target.dataset.clean) target.textContent = target.dataset.clean;
         });
@@ -3125,6 +3266,69 @@
         }
       }
 
+      function clampValue(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function getShowcaseZones(targetW, targetH) {
+        const safe = getVideoSafeRect(18);
+        const margin = 12;
+        const bottomGuard = 42;
+        const zones = [
+          { name: "top", left: margin, top: margin, width: safe.viewportWidth - margin * 2, height: Math.max(0, safe.top - margin * 2) },
+          { name: "right", left: safe.right + margin, top: margin, width: safe.viewportWidth - safe.right - margin * 2, height: safe.viewportHeight - bottomGuard - margin * 2 },
+          { name: "bottom", left: margin, top: safe.bottom + margin, width: safe.viewportWidth - margin * 2, height: safe.viewportHeight - safe.bottom - bottomGuard - margin },
+          { name: "left", left: margin, top: margin, width: safe.left - margin * 2, height: safe.viewportHeight - bottomGuard - margin * 2 }
+        ];
+        const usable = zones.filter((zone) => zone.width >= targetW * .58 && zone.height >= targetH * .54);
+        return { safe, zones: usable.length ? usable : zones };
+      }
+
+      function layoutMushroomShowcase(index, now) {
+        if (!mushroomShowcaseImage) return;
+        const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+        const targetW = Math.round(clampValue(vw * (vw < 560 ? .48 : .30), 150, vw < 560 ? 230 : 430));
+        const targetH = Math.round(targetW * .75);
+        const { zones } = getShowcaseZones(targetW, targetH);
+        const zone = zones[index % zones.length];
+        const maxLeft = Math.max(8, zone.left + zone.width - targetW);
+        const maxTop = Math.max(8, zone.top + zone.height - targetH);
+        let left = zone.left + (zone.width - targetW) / 2;
+        let top = zone.top + (zone.height - targetH) / 2;
+        if (zone.name === "left") top += Math.sin(now * 10) * 18;
+        if (zone.name === "right") top += Math.cos(now * 8) * 18;
+        if (zone.name === "top") left += Math.sin(now * 7) * 26;
+        if (zone.name === "bottom") left += Math.cos(now * 6) * 26;
+        left = clampValue(left, 8, Math.max(8, Math.min(maxLeft, vw - targetW - 8)));
+        top = clampValue(top, 8, Math.max(8, Math.min(maxTop, vh - targetH - 42)));
+        mushroomShowcaseImage.style.width = `${targetW}px`;
+        mushroomShowcaseImage.style.left = `${Math.round(left)}px`;
+        mushroomShowcaseImage.style.top = `${Math.round(top)}px`;
+        mushroomShowcaseImage.style.setProperty("--mush-hue", `${Math.round((now * 180 + index * 91) % 360)}deg`);
+      }
+
+      function syncMushroomShowcaseByTime(now) {
+        const current = timelineMushroomShowcaseWindows.find((item) => now >= item.start && now < item.end);
+        if (!current) {
+          if (lastMushroomShowcaseKey && mushroomShowcaseLayer) {
+            mushroomShowcaseLayer.classList.remove("active");
+            lastMushroomShowcaseKey = "";
+          }
+          return;
+        }
+        const item = MUSHROOM_SHOWCASE_IMAGES[current.index];
+        if (!item || !mushroomShowcaseLayer || !mushroomShowcaseImage) return;
+        if (lastMushroomShowcaseKey !== current.key) {
+          mushroomShowcaseImage.src = item.src;
+          mushroomShowcaseImage.alt = item.label;
+          mushroomShowcaseLayer.classList.add("active");
+          lastMushroomShowcaseKey = current.key;
+          writeLog(item.label);
+        }
+        layoutMushroomShowcase(current.index, now);
+      }
+
       function syncRainByTime(now) {
         const rainWindow = timelineRainWindows.find((item) => now >= item.start && now < item.end);
         if (rainWindow) {
@@ -3168,6 +3372,7 @@
           syncClassWindows(now);
           syncRainByTime(now);
           syncTabStormByTime(now);
+          syncMushroomShowcaseByTime(now);
           syncEightTextByTime(now);
           syncCrossLayerByTime(now);
           syncChromaByTime(now);
@@ -3191,6 +3396,7 @@
         syncClassWindows(now);
         syncRainByTime(now);
         syncTabStormByTime(now);
+        syncMushroomShowcaseByTime(now);
         syncEightTextByTime(now);
         syncCrossLayerByTime(now);
         syncChromaByTime(now);
